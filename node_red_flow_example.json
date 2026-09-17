@@ -1,0 +1,71 @@
+[
+  {
+    "id": "tab_zaraplast_corte",
+    "type": "tab",
+    "label": "Zaraplast Corte & Rebobinamento",
+    "disabled": false,
+    "info": "Fluxo WebSocket Node-RED para enviar dados em tempo real para o app Flutter."
+  },
+  {
+    "id": "ws_server_telemetria",
+    "type": "websocket-listener",
+    "path": "/ws/telemetria",
+    "wholemsg": "false"
+  },
+  {
+    "id": "inject_timer",
+    "type": "inject",
+    "z": "tab_zaraplast_corte",
+    "name": "Enviar a cada 3s",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "3",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.5,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 140,
+    "wires": [
+      [
+        "fn_gerar_telemetria"
+      ]
+    ]
+  },
+  {
+    "id": "fn_gerar_telemetria",
+    "type": "function",
+    "z": "tab_zaraplast_corte",
+    "name": "Montar Telemetria Zaraplast",
+    "func": "// Simula pequenas variações ou lê variáveis dos PLCs/CLPs da fábrica\nconst agora = new Date();\n\nmsg.payload = {\n  timestamp: agora.toISOString(),\n  transferencia: {\n    pesadoHoje: 31387,\n    mensal: 601372,\n    tendenciaHoje: 8.4,\n    tendenciaMes: 12.1\n  },\n  corteGeral: {\n    atual: 14631933,\n    meta: 27500000,\n    concluidoPct: 53.2,\n    restantePct: 46.8\n  },\n  setor: {\n    shiftMeters: 284619,\n    todayMeters: 284619,\n    monthMeters: 14631933,\n    shiftTarget: 409000,\n    expectedRitmo: 394858,\n    scrapShift: 6.37,\n    scrapMonth: 5.76,\n    rhythmPoints: [58.0, 70.0, 68.0, 72.0, 72.0]\n  },\n  maquinas: [\n    {\n      code: 'BCR006',\n      name: 'Cortadeira Rebobinadeira 06',\n      status: 'running',\n      operatorName: 'Antônio Ferreira',\n      speedMpm: 380,\n      shiftMeters: 36135,\n      shiftTarget: 60000,\n      expectedRitmo: 49927,\n      rhythmPct: 71.0,\n      rhythmPoints: [52.0, 74.0, 69.0, 73.0, 71.0],\n      todayMeters: 36135,\n      monthMeters: 1853019,\n      scrapShift: 5.96,\n      scrapMonth: 5.26,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45091 — Filme Shrink Polietileno',\n      materialDescription: 'PEBD Termoencolhível 65 micras'\n    },\n    {\n      code: 'BCR007',\n      name: 'Cortadeira Rebobinadeira 07',\n      status: 'setup',\n      operatorName: 'Marcos Vinícius',\n      speedMpm: 220,\n      shiftMeters: 32713,\n      shiftTarget: 48800,\n      expectedRitmo: 48928,\n      rhythmPct: 69.0,\n      rhythmPoints: [58.0, 62.0, 59.0, 66.0, 69.0],\n      todayMeters: 32713,\n      monthMeters: 2318155,\n      scrapShift: 6.48,\n      scrapMonth: 7.27,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45102 — Laminado Stand-up Pouch',\n      materialDescription: 'BOPP Mate + PE 110 micras'\n    },\n    {\n      code: 'BCR012',\n      name: 'Cortadeira Rebobinadeira 12',\n      status: 'running',\n      operatorName: 'Rafael Santos',\n      speedMpm: 450,\n      shiftMeters: 56813,\n      shiftTarget: 69500,\n      expectedRitmo: 64969,\n      rhythmPct: 84.0,\n      rhythmPoints: [60.0, 88.0, 86.0, 83.0, 84.0],\n      todayMeters: 56813,\n      monthMeters: 2187627,\n      scrapShift: 5.82,\n      scrapMonth: 3.80,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45118 — Bobina Impressa Pão de Forma',\n      materialDescription: 'PEBD Cristal 32 micras'\n    },\n    {\n      code: 'BCR014',\n      name: 'Cortadeira Rebobinadeira 14',\n      status: 'running',\n      operatorName: 'Lucas Almeida',\n      speedMpm: 420,\n      shiftMeters: 60759,\n      shiftTarget: 73800,\n      expectedRitmo: 71744,\n      rhythmPct: 82.0,\n      rhythmPoints: [72.0, 70.0, 78.0, 81.0, 82.0],\n      todayMeters: 60759,\n      monthMeters: 2510002,\n      scrapShift: 10.07,\n      scrapMonth: 6.30,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45125 — Filme Barreira Alimentos',\n      materialDescription: 'PA/PE 70 micras'\n    },\n    {\n      code: 'BCR015',\n      name: 'Cortadeira Rebobinadeira 15',\n      status: 'running',\n      operatorName: 'Thiago Oliveira',\n      speedMpm: 490,\n      shiftMeters: 60371,\n      shiftTarget: 94000,\n      expectedRitmo: 96942,\n      rhythmPct: 65.0,\n      rhythmPoints: [55.0, 63.0, 61.0, 64.0, 65.0],\n      todayMeters: 60371,\n      monthMeters: 3498104,\n      scrapShift: 3.08,\n      scrapMonth: 5.68,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45130 — Filme Higiênico Fraldas',\n      materialDescription: 'PEBD Microperfurado 22 micras'\n    },\n    {\n      code: 'BCR016',\n      name: 'Cortadeira Rebobinadeira 16',\n      status: 'running',\n      operatorName: 'Rodrigo Gomes',\n      speedMpm: 360,\n      shiftMeters: 37828,\n      shiftTarget: 63800,\n      expectedRitmo: 61777,\n      rhythmPct: 60.0,\n      rhythmPoints: [45.0, 60.0, 58.0, 62.0, 60.0],\n      todayMeters: 37828,\n      monthMeters: 2265026,\n      scrapShift: 7.16,\n      scrapMonth: 6.69,\n      scrapTarget: 3.0,\n      productionOrder: 'OP-45142 — Embalagem Ração Pet',\n      materialDescription: 'PET Met + PE 95 micras'\n    }\n  ]\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 140,
+    "wires": [
+      [
+        "ws_out_telemetria"
+      ]
+    ]
+  },
+  {
+    "id": "ws_out_telemetria",
+    "type": "websocket out",
+    "z": "tab_zaraplast_corte",
+    "name": "WebSocket /ws/telemetria",
+    "server": "ws_server_telemetria",
+    "client": "",
+    "x": 700,
+    "y": 140,
+    "wires": []
+  }
+]

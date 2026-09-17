@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/utils/formatters.dart';
 import 'custom_donut_gauge.dart';
+import 'rhythm_line_chart.dart';
 
 class CorteRebobinamentoCard extends StatelessWidget {
   final int currentMeters;
   final int targetMeters;
   final double completedPercent;
   final double remainingPercent;
+  final List<double> sectorRhythmPoints;
   final bool isDark;
 
   const CorteRebobinamentoCard({
@@ -16,6 +18,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
     required this.targetMeters,
     required this.completedPercent,
     required this.remainingPercent,
+    this.sectorRhythmPoints = const [58, 70, 68, 72, 72],
     required this.isDark,
   });
 
@@ -83,7 +86,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          // Target Header Chip (Telemetry Console)
+          // Target Header Chip
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -101,16 +104,16 @@ class CorteRebobinamentoCard extends StatelessWidget {
                   'Atual: ',
                   style: TextStyle(
                     fontSize: 12,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : AppColors.lightTextSecondary,
                   ),
                 ),
                 Text(
                   Formatters.formatInteger(currentMeters),
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
                     color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                    fontWeight: FontWeight.w900,
                     fontFamily: 'Outfit',
                   ),
                 ),
@@ -118,79 +121,67 @@ class CorteRebobinamentoCard extends StatelessWidget {
                   '  /  Meta: ',
                   style: TextStyle(
                     fontSize: 12,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : AppColors.lightTextSecondary,
                   ),
                 ),
                 Text(
-                  Formatters.formatInteger(targetMeters),
+                  '${Formatters.formatInteger(targetMeters)} m',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
                     color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                    fontWeight: FontWeight.w900,
                     fontFamily: 'Outfit',
-                  ),
-                ),
-                Text(
-                  ' m',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 16),
 
-          const SizedBox(height: 18),
-
-          // Donut Gauge (High-Density SCADA)
-          CustomDonutGauge(
-            completedPercent: completedPercent,
-            remainingPercent: remainingPercent,
-            size: 205,
-            strokeWidth: 20,
-            centerTitle: '${Formatters.formatDecimal(completedPercent)}%',
-            centerSubtitle: 'PROGRESSO',
-            isDark: isDark,
+          // Donut Gauge
+          SizedBox(
+            width: 190,
+            height: 190,
+            child: CustomDonutGauge(
+              completedPercent: completedPercent,
+              remainingPercent: remainingPercent,
+              concludedColor: concludedColor,
+              remainingColor: remainingColor,
+              isDark: isDark,
+            ),
           ),
+          const SizedBox(height: 14),
 
-          const SizedBox(height: 18),
-
-          // Legend (Feito vs Restante - High-Precision Badges)
+          // Legend Tiles
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Restante
               _buildTelemetryTile(
                 label: 'RESTANTE',
-                percent: '${Formatters.formatDecimal(remainingPercent)}%',
+                percent: Formatters.formatPercent(remainingPercent),
                 dotColor: remainingColor,
-                bgColor: isDark ? AppColors.dangerBgDark : AppColors.dangerBgLight,
-                borderColor: isDark ? AppColors.dangerBorderDark : AppColors.dangerBorderLight,
+                bgColor: isDark ? const Color(0xFF4C0519) : const Color(0xFFFFF1F2),
+                borderColor: isDark ? const Color(0xFF9F1239) : const Color(0xFFFECDD3),
                 textColor: isDark ? Colors.white : AppColors.lightTextPrimary,
-                labelColor: isDark ? AppColors.dangerTextDark : AppColors.dangerTextLight,
+                labelColor: isDark ? const Color(0xFFFDA4AF) : const Color(0xFF9F1239),
               ),
               const SizedBox(width: 14),
-              // Feito
               _buildTelemetryTile(
                 label: 'FEITO',
-                percent: '${Formatters.formatDecimal(completedPercent)}%',
+                percent: Formatters.formatPercent(completedPercent),
                 dotColor: concludedColor,
-                bgColor: isDark ? AppColors.successBgDark : AppColors.successBgLight,
-                borderColor: isDark ? AppColors.successBorderDark : AppColors.successBorderLight,
+                bgColor: isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
+                borderColor: isDark ? const Color(0xFF0F766E) : const Color(0xFFA7F3D0),
                 textColor: isDark ? Colors.white : AppColors.lightTextPrimary,
-                labelColor: isDark ? AppColors.successTextDark : AppColors.successTextLight,
+                labelColor: isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
-          Divider(height: 1, color: isDark ? AppColors.darkDivider : AppColors.lightDivider),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
-          // Cadence Helper
+          // Sector Cadence
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -237,6 +228,32 @@ class CorteRebobinamentoCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 10),
+
+          // Sector Rhythm Trend Line Chart
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '% DO RITMO DO SETOR — 1º TURNO',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          RhythmLineChart(
+            points: sectorRhythmPoints,
+            isDark: isDark,
+            height: 95,
+            timeLabels: const ['06h', '08h', '10h', '12h', '14h'],
           ),
         ],
       ),

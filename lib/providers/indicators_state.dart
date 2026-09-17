@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/machine_indicator.dart';
 import '../models/transfer_indicator.dart';
 import '../models/alert_model.dart';
+import '../services/websocket_service.dart';
 
 enum ShiftFilter { shift1, shift2, shift3, fullDay }
 
 class IndicatorsState extends ChangeNotifier {
   // Theme state
-  ThemeMode _themeMode = ThemeMode.dark; // Default to sleek industrial dark mode
+  ThemeMode _themeMode = ThemeMode.light;
   ThemeMode get themeMode => _themeMode;
-
   bool get isDarkMode => _themeMode == ThemeMode.dark;
 
   void toggleTheme() {
@@ -31,14 +31,6 @@ class IndicatorsState extends ChangeNotifier {
     _isTVMode = !_isTVMode;
     notifyListeners();
   }
-
-  // Live Auto-Refresh State
-  bool _isLiveActive = true;
-  bool get isLiveActive => _isLiveActive;
-  DateTime _lastUpdate = DateTime.now();
-  DateTime get lastUpdate => _lastUpdate;
-
-  Timer? _liveTimer;
 
   // Active Shift Filter
   ShiftFilter _selectedShift = ShiftFilter.shift1;
@@ -81,33 +73,33 @@ class IndicatorsState extends ChangeNotifier {
   }
 
   // Overall Corte & Rebobinamento
-  int _corteCurrentMeters = 1188756;
-  final int _corteTargetMeters = 27500000;
+  int _corteCurrentMeters = 14631933;
+  int _corteTargetMeters = 27500000;
 
   int get corteCurrentMeters => _corteCurrentMeters;
   int get corteTargetMeters => _corteTargetMeters;
 
   double get corteConcludedPercent =>
-      (_corteCurrentMeters / _corteTargetMeters) * 100; // 4.3%
+      _corteTargetMeters > 0 ? (_corteCurrentMeters / _corteTargetMeters) * 100 : 0.0; // 53.2%
 
   double get corteRemainingPercent =>
-      100.0 - corteConcludedPercent; // 95.7%
+      100.0 - corteConcludedPercent; // 46.8%
 
   // Transfer Data
   TransferIndicator _transfer = const TransferIndicator(
-    todayWeighed: 10582,
-    monthWeighed: 67098,
-    todayTarget: 12000,
-    monthTarget: 300000,
+    todayWeighed: 31387,
+    monthWeighed: 601372,
+    todayTarget: 35000,
+    monthTarget: 800000,
     trendTodayPercent: 8.4,
     trendMonthPercent: 12.1,
   );
   TransferIndicator get transfer => _transfer;
 
   // Sector Aparas Summary
-  double? _sectorScrapShift = 0.00;
+  double? _sectorScrapShift = 6.37;
   double? _sectorScrapDay = 0.00;
-  final double _sectorScrapMonth = 7.16;
+  double _sectorScrapMonth = 5.76;
   final double _scrapGoal = 3.0;
 
   double? get sectorScrapShift => _sectorScrapShift;
@@ -115,7 +107,11 @@ class IndicatorsState extends ChangeNotifier {
   double get sectorScrapMonth => _sectorScrapMonth;
   double get scrapGoal => _scrapGoal;
 
-  // Machine List (All exact data from the screen)
+  // Sector Rhythm Points
+  List<double> _sectorRhythmPoints = const [58.0, 70.0, 68.0, 72.0, 72.0];
+  List<double> get sectorRhythmPoints => _sectorRhythmPoints;
+
+  // Machine List (Matches approved reference, NO OEE)
   List<MachineIndicator> _machines = [
     const MachineIndicator(
       code: 'BCR006',
@@ -123,22 +119,21 @@ class IndicatorsState extends ChangeNotifier {
       status: 'running',
       operatorName: 'Antônio Ferreira',
       speedMpm: 380,
-      shiftMeters: 0,
-      shiftTarget: 57000,
-      shiftPacing: null,
-      todayMeters: 3111,
-      monthMeters: 111608,
-      scrapShift: null,
-      scrapDay: null,
-      scrapMonth: 4.52,
+      shiftMeters: 36135,
+      shiftTarget: 60000,
+      expectedRitmo: 49927,
+      rhythmPct: 71.0,
+      rhythmPoints: [52.0, 74.0, 69.0, 73.0, 71.0],
+      todayMeters: 36135,
+      monthMeters: 1853019,
+      scrapShift: 5.96,
+      scrapMonth: 5.26,
       scrapTarget: 3.0,
-      oee: 82.4,
       productionOrder: 'OP-45091 — Filme Shrink Polietileno',
       materialDescription: 'PEBD Termoencolhível 65 micras',
       scrapReasons: [
         ScrapReason(category: 'Refugo de Acerto / Setup', weightKg: 85.0, percentage: 42.0),
         ScrapReason(category: 'Refugo Lateral (Refile)', weightKg: 78.0, percentage: 38.5),
-        ScrapReason(category: 'Defeito de Bobinamento', weightKg: 39.5, percentage: 19.5),
       ],
     ),
     const MachineIndicator(
@@ -147,22 +142,21 @@ class IndicatorsState extends ChangeNotifier {
       status: 'setup',
       operatorName: 'Marcos Vinícius',
       speedMpm: 220,
-      shiftMeters: 0,
-      shiftTarget: 67200,
-      shiftPacing: null,
-      todayMeters: 2719,
-      monthMeters: 110151,
-      scrapShift: null,
-      scrapDay: null,
-      scrapMonth: 16.32, // CRITICAL
+      shiftMeters: 32713,
+      shiftTarget: 48800,
+      expectedRitmo: 48928,
+      rhythmPct: 69.0,
+      rhythmPoints: [58.0, 62.0, 59.0, 66.0, 69.0],
+      todayMeters: 32713,
+      monthMeters: 2318155,
+      scrapShift: 6.48,
+      scrapMonth: 7.27,
       scrapTarget: 3.0,
-      oee: 64.1,
       productionOrder: 'OP-45102 — Laminado Stand-up Pouch',
       materialDescription: 'BOPP Mate + PE 110 micras',
       scrapReasons: [
         ScrapReason(category: 'Ajuste de Tensão e Rugas', weightKg: 340.0, percentage: 55.0),
         ScrapReason(category: 'Desalinhamento de Eixo', weightKg: 180.0, percentage: 29.0),
-        ScrapReason(category: 'Acerto de Guilhotina', weightKg: 99.0, percentage: 16.0),
       ],
     ),
     const MachineIndicator(
@@ -171,21 +165,20 @@ class IndicatorsState extends ChangeNotifier {
       status: 'running',
       operatorName: 'Rafael Santos',
       speedMpm: 450,
-      shiftMeters: 0,
-      shiftTarget: 67200,
-      shiftPacing: null,
-      todayMeters: 6813,
-      monthMeters: 154323,
-      scrapShift: 0.00,
-      scrapDay: 0.00,
-      scrapMonth: 5.08,
+      shiftMeters: 56813,
+      shiftTarget: 69500,
+      expectedRitmo: 64969,
+      rhythmPct: 84.0,
+      rhythmPoints: [60.0, 88.0, 86.0, 83.0, 84.0],
+      todayMeters: 56813,
+      monthMeters: 2187627,
+      scrapShift: 5.82,
+      scrapMonth: 3.80,
       scrapTarget: 3.0,
-      oee: 89.2,
       productionOrder: 'OP-45118 — Bobina Impressa Pão de Forma',
       materialDescription: 'PEBD Cristal 32 micras',
       scrapReasons: [
         ScrapReason(category: 'Refile Lateral', weightKg: 110.0, percentage: 60.0),
-        ScrapReason(category: 'Troca de Rolo Principal', weightKg: 73.0, percentage: 40.0),
       ],
     ),
     const MachineIndicator(
@@ -194,21 +187,20 @@ class IndicatorsState extends ChangeNotifier {
       status: 'running',
       operatorName: 'Lucas Almeida',
       speedMpm: 420,
-      shiftMeters: 0,
-      shiftTarget: 48000,
-      shiftPacing: null,
-      todayMeters: 6907,
-      monthMeters: 229759,
-      scrapShift: 0.00,
-      scrapDay: 0.00,
-      scrapMonth: 5.59,
+      shiftMeters: 60759,
+      shiftTarget: 73800,
+      expectedRitmo: 71744,
+      rhythmPct: 82.0,
+      rhythmPoints: [72.0, 70.0, 78.0, 81.0, 82.0],
+      todayMeters: 60759,
+      monthMeters: 2510002,
+      scrapShift: 10.07,
+      scrapMonth: 6.30,
       scrapTarget: 3.0,
-      oee: 91.5,
       productionOrder: 'OP-45125 — Filme Barreira Alimentos',
       materialDescription: 'PA/PE 70 micras',
       scrapReasons: [
         ScrapReason(category: 'Refile Lateral', weightKg: 145.0, percentage: 65.0),
-        ScrapReason(category: 'Acerto de Largura das Facas', weightKg: 78.0, percentage: 35.0),
       ],
     ),
     const MachineIndicator(
@@ -217,21 +209,20 @@ class IndicatorsState extends ChangeNotifier {
       status: 'running',
       operatorName: 'Thiago Oliveira',
       speedMpm: 490,
-      shiftMeters: 0,
-      shiftTarget: 57000,
-      shiftPacing: null,
-      todayMeters: 13113, // Top Producer Today!
-      monthMeters: 375610, // Top Producer Month!
-      scrapShift: 0.00,
-      scrapDay: 0.00,
-      scrapMonth: 7.05,
+      shiftMeters: 60371,
+      shiftTarget: 94000,
+      expectedRitmo: 96942,
+      rhythmPct: 65.0,
+      rhythmPoints: [55.0, 63.0, 61.0, 64.0, 65.0],
+      todayMeters: 60371,
+      monthMeters: 3498104,
+      scrapShift: 3.08,
+      scrapMonth: 5.68,
       scrapTarget: 3.0,
-      oee: 95.8,
       productionOrder: 'OP-45130 — Filme Higiênico Fraldas',
       materialDescription: 'PEBD Microperfurado 22 micras',
       scrapReasons: [
         ScrapReason(category: 'Refile Lateral Alta Velocidade', weightKg: 210.0, percentage: 70.0),
-        ScrapReason(category: 'Emenda de Bobinas Mãe', weightKg: 90.0, percentage: 30.0),
       ],
     ),
     const MachineIndicator(
@@ -240,21 +231,20 @@ class IndicatorsState extends ChangeNotifier {
       status: 'running',
       operatorName: 'Rodrigo Gomes',
       speedMpm: 360,
-      shiftMeters: 0,
-      shiftTarget: 57000,
-      shiftPacing: null,
-      todayMeters: 4786,
-      monthMeters: 207305,
-      scrapShift: 0.00,
-      scrapDay: 0.00,
-      scrapMonth: 9.05,
+      shiftMeters: 37828,
+      shiftTarget: 63800,
+      expectedRitmo: 61777,
+      rhythmPct: 60.0,
+      rhythmPoints: [45.0, 60.0, 58.0, 62.0, 60.0],
+      todayMeters: 37828,
+      monthMeters: 2265026,
+      scrapShift: 7.16,
+      scrapMonth: 6.69,
       scrapTarget: 3.0,
-      oee: 84.0,
       productionOrder: 'OP-45142 — Embalagem Ração Pet',
       materialDescription: 'PET Met + PE 95 micras',
       scrapReasons: [
         ScrapReason(category: 'Acerto de Alinhamento Fotocélula', weightKg: 130.0, percentage: 52.0),
-        ScrapReason(category: 'Refile Lateral', weightKg: 120.0, percentage: 48.0),
       ],
     ),
   ];
@@ -273,84 +263,107 @@ class IndicatorsState extends ChangeNotifier {
   final List<PlantAlert> _alerts = [
     PlantAlert(
       id: 'ALT-1',
-      title: 'Atenção: Aparas BCR007 em 16,32%',
-      message: 'A máquina BCR007 ultrapassou o limite crítico de aparas (Meta: 3,0%). Verificar setup de guilhotina e tensão.',
+      title: 'Atenção: Aparas BCR014 em 10,07%',
+      message: 'A máquina BCR014 ultrapassou o limite de aparas no turno. Verificar refile e guilhotina.',
       severity: AlertSeverity.danger,
       timestamp: DateTime.now().subtract(const Duration(minutes: 12)),
-      machineCode: 'BCR007',
+      machineCode: 'BCR014',
     ),
     PlantAlert(
       id: 'ALT-2',
       title: 'Destaque Produtivo: BCR015 lidera o mês',
-      message: 'BCR015 atingiu 375.610 metros acumulados no mês e 13.113 metros hoje.',
+      message: 'BCR015 atingiu 3.498.104 metros acumulados no mês e 60.371 metros hoje.',
       severity: AlertSeverity.success,
       timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
       machineCode: 'BCR015',
-    ),
-    PlantAlert(
-      id: 'ALT-3',
-      title: 'Ajuste de Ritmo BCR016',
-      message: 'Aparas acumuladas no mês em 9,05% exigem verificação de alinhamento de fotocélula.',
-      severity: AlertSeverity.warning,
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      machineCode: 'BCR016',
     ),
   ];
 
   List<PlantAlert> get alerts => _alerts;
   int get unreadAlertsCount => _alerts.where((a) => !a.isRead).length;
 
-  IndicatorsState() {
-    _startLiveSync();
+  // WebSocket Service (Node-RED Integration)
+  late final WebSocketService _wsService;
+  WebSocketStatus get wsStatus => _wsService.status;
+  String get wsUrl => _wsService.serverUrl;
+
+  DateTime _lastUpdate = DateTime.now();
+  DateTime get lastUpdate => _lastUpdate;
+
+  IndicatorsState({String wsServerUrl = 'ws://localhost:1880/ws/telemetria'}) {
+    _wsService = WebSocketService(
+      serverUrl: wsServerUrl,
+      onTelemetryReceived: _handleWebSocketTelemetry,
+      onStatusChanged: (status) {
+        notifyListeners();
+      },
+    );
+    _wsService.connect();
   }
 
-  void toggleLiveSync() {
-    _isLiveActive = !_isLiveActive;
-    if (_isLiveActive) {
-      _startLiveSync();
-    } else {
-      _liveTimer?.cancel();
+  void updateWebSocketUrl(String newUrl) {
+    _wsService.disconnect();
+    _wsService = WebSocketService(
+      serverUrl: newUrl,
+      onTelemetryReceived: _handleWebSocketTelemetry,
+      onStatusChanged: (status) {
+        notifyListeners();
+      },
+    );
+    _wsService.connect();
+    notifyListeners();
+  }
+
+  void _handleWebSocketTelemetry(Map<String, dynamic> data) {
+    _lastUpdate = DateTime.now();
+
+    // 1. Transferência
+    if (data.containsKey('transferencia')) {
+      final t = data['transferencia'] as Map<String, dynamic>;
+      _transfer = TransferIndicator(
+        todayWeighed: (t['pesadoHoje'] as num?)?.toInt() ?? _transfer.todayWeighed,
+        monthWeighed: (t['mensal'] as num?)?.toInt() ?? _transfer.monthWeighed,
+        todayTarget: _transfer.todayTarget,
+        monthTarget: _transfer.monthTarget,
+        trendTodayPercent: (t['tendenciaHoje'] as num?)?.toDouble() ?? _transfer.trendTodayPercent,
+        trendMonthPercent: (t['tendenciaMes'] as num?)?.toDouble() ?? _transfer.trendMonthPercent,
+      );
     }
-    notifyListeners();
-  }
 
-  void _startLiveSync() {
-    _liveTimer?.cancel();
-    _liveTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (!_isLiveActive) return;
-      _simulateRealtimeTick();
-    });
-  }
+    // 2. Corte Geral
+    if (data.containsKey('corteGeral')) {
+      final c = data['corteGeral'] as Map<String, dynamic>;
+      if (c['atual'] != null) _corteCurrentMeters = (c['atual'] as num).toInt();
+      if (c['meta'] != null) _corteTargetMeters = (c['meta'] as num).toInt();
+    }
 
-  void manualRefresh() {
-    _simulateRealtimeTick();
-    _lastUpdate = DateTime.now();
-    notifyListeners();
-  }
-
-  void _simulateRealtimeTick() {
-    _lastUpdate = DateTime.now();
-
-    // Increment slight production meters for running machines to give live feel
-    _machines = _machines.map((m) {
-      if (m.status == 'running') {
-        final added = (m.speedMpm / 60 * 4).round(); // 4 seconds of run
-        return m.copyWith(
-          shiftMeters: m.shiftMeters + added,
-          todayMeters: m.todayMeters + added,
-          monthMeters: m.monthMeters + added,
-        );
+    // 3. Setor
+    if (data.containsKey('setor')) {
+      final s = data['setor'] as Map<String, dynamic>;
+      if (s['scrapShift'] != null) _sectorScrapShift = (s['scrapShift'] as num).toDouble();
+      if (s['scrapMonth'] != null) _sectorScrapMonth = (s['scrapMonth'] as num).toDouble();
+      if (s['rhythmPoints'] is List) {
+        _sectorRhythmPoints = (s['rhythmPoints'] as List)
+            .map((e) => (e as num).toDouble())
+            .toList();
       }
-      return m;
-    }).toList();
+    }
 
-    _corteCurrentMeters += 24; // Overall meters increment
+    // 4. Máquinas
+    if (data.containsKey('maquinas') && data['maquinas'] is List) {
+      final list = data['maquinas'] as List;
+      _machines = list.map((item) {
+        final map = item as Map<String, dynamic>;
+        return MachineIndicator.fromJson(map);
+      }).toList();
+    }
+
     notifyListeners();
   }
 
   @override
   void dispose() {
-    _liveTimer?.cancel();
+    _wsService.disconnect();
     super.dispose();
   }
 }

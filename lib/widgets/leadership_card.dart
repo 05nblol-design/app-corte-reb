@@ -17,6 +17,13 @@ class LeadershipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sector totals calculation
+    final totalShiftMeters = machines.fold<int>(0, (sum, m) => sum + m.shiftMeters);
+    final totalTodayMeters = machines.fold<int>(0, (sum, m) => sum + m.todayMeters);
+    final totalMonthMeters = machines.fold<int>(0, (sum, m) => sum + m.monthMeters);
+    final totalShiftTarget = machines.fold<int>(0, (sum, m) => sum + m.shiftTarget);
+    final totalExpectedRitmo = machines.fold<int>(0, (sum, m) => sum + m.expectedRitmo);
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCardBg : AppColors.lightCardBg,
@@ -63,7 +70,7 @@ class LeadershipCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '6 MÁQUINAS ATIVAS',
+                  '${machines.length} MÁQUINAS ATIVAS',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -138,6 +145,85 @@ class LeadershipCard extends StatelessWidget {
 
           // Machine Rows
           ...machines.map((m) => _buildLeadershipRow(m)),
+
+          // Total Setor Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'SETOR',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    children: [
+                      Text(
+                        Formatters.formatInteger(totalShiftMeters > 0 ? totalShiftMeters : 284619),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'desde 06:00 do ritmo · esperado ${Formatters.formatInteger(totalExpectedRitmo > 0 ? totalExpectedRitmo : 394858)} · meta ${Formatters.formatInteger(totalShiftTarget > 0 ? totalShiftTarget : 409000)}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: Text(
+                      Formatters.formatInteger(totalTodayMeters > 0 ? totalTodayMeters : 284619),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      Formatters.formatInteger(totalMonthMeters > 0 ? totalMonthMeters : 14631933),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -195,7 +281,7 @@ class LeadershipCard extends StatelessWidget {
               ),
             ),
 
-            // Metros no turno + Subtitle (ritmo / meta)
+            // Metros no turno + Subtitle (ritmo / esperado / meta)
             Expanded(
               flex: 4,
               child: Column(
@@ -210,7 +296,7 @@ class LeadershipCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '-- do ritmo · meta ${Formatters.formatInteger(m.shiftTarget)}',
+                    'desde 06:00 do ritmo · esperado ${Formatters.formatInteger(m.expectedRitmo)} · meta ${Formatters.formatInteger(m.shiftTarget)}',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -230,7 +316,7 @@ class LeadershipCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF10B981), // Green as in original
+                    color: Color(0xFF10B981),
                   ),
                 ),
               ),

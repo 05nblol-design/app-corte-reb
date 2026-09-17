@@ -8,6 +8,7 @@ import '../widgets/transfer_card.dart';
 import '../widgets/scrap_table_card.dart';
 import '../widgets/leadership_card.dart';
 import '../widgets/corte_rebobinamento_card.dart';
+import '../widgets/machines_rhythm_card.dart';
 import '../widgets/machine_detail_dialog.dart';
 import '../widgets/alerts_dialog.dart';
 
@@ -93,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  /// Desktop Layout (2x2 Grid corresponding to the reference image)
+  /// Desktop Layout (Exact Reference Layout)
   Widget _buildDesktopLayout(bool isDark) {
     return Column(
       children: [
@@ -101,7 +102,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Left: Transferência
             Expanded(
               flex: 5,
               child: TransferCard(
@@ -110,7 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(width: 20),
-            // Top Right: Aparas
             Expanded(
               flex: 7,
               child: ScrapTableCard(
@@ -128,13 +127,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         const SizedBox(height: 20),
 
-        // Bottom Row: [ACOMPANHAMENTO LIDERANÇA] | [CORTE & REBOBINAMENTO]
+        // Middle Row: [ACOMPANHAMENTO LIDERANÇA] | [CORTE & REBOBINAMENTO]
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bottom Left: Acompanhamento Liderança
             Expanded(
-              flex: 6,
+              flex: 7,
               child: LeadershipCard(
                 machines: widget.state.machines,
                 isDark: isDark,
@@ -142,18 +140,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(width: 20),
-            // Bottom Right: Corte & Rebobinamento
             Expanded(
-              flex: 6,
+              flex: 5,
               child: CorteRebobinamentoCard(
                 currentMeters: widget.state.corteCurrentMeters,
                 targetMeters: widget.state.corteTargetMeters,
                 completedPercent: widget.state.corteConcludedPercent,
                 remainingPercent: widget.state.corteRemainingPercent,
+                sectorRhythmPoints: widget.state.sectorRhythmPoints,
                 isDark: isDark,
               ),
             ),
           ],
+        ),
+
+        const SizedBox(height: 20),
+
+        // Bottom Row: [% DO RITMO POR MÁQUINA — 1º TURNO]
+        MachinesRhythmCard(
+          machines: widget.state.machines,
+          isDark: isDark,
         ),
       ],
     );
@@ -179,6 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 targetMeters: widget.state.corteTargetMeters,
                 completedPercent: widget.state.corteConcludedPercent,
                 remainingPercent: widget.state.corteRemainingPercent,
+                sectorRhythmPoints: widget.state.sectorRhythmPoints,
                 isDark: isDark,
               ),
             ),
@@ -200,6 +207,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           isDark: isDark,
           onSelectMachine: _openMachineDetail,
         ),
+        const SizedBox(height: 16),
+        MachinesRhythmCard(
+          machines: widget.state.machines,
+          isDark: isDark,
+        ),
       ],
     );
   }
@@ -218,6 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           targetMeters: widget.state.corteTargetMeters,
           completedPercent: widget.state.corteConcludedPercent,
           remainingPercent: widget.state.corteRemainingPercent,
+          sectorRhythmPoints: widget.state.sectorRhythmPoints,
           isDark: isDark,
         ),
         const SizedBox(height: 14),
@@ -235,6 +248,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           machines: widget.state.machines,
           isDark: isDark,
           onSelectMachine: _openMachineDetail,
+        ),
+        const SizedBox(height: 14),
+        MachinesRhythmCard(
+          machines: widget.state.machines,
+          isDark: isDark,
         ),
       ],
     );
