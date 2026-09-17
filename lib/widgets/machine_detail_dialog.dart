@@ -193,8 +193,8 @@ class MachineDetailDialog extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 _buildStatTile(
-                  label: 'OEE Eficiência',
-                  value: '${machine.oee}%',
+                  label: 'Ritmo do Turno',
+                  value: '${machine.rhythmPct.toInt()}%',
                   accentColor: const Color(0xFF0284C7),
                 ),
               ],

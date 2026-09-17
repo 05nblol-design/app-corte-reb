@@ -176,12 +176,12 @@ class MachineListItem extends StatelessWidget {
                       ],
                     ),
 
-                    // Velocidade & OEE
+                    // Velocidade & Ritmo
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'VELOCIDADE / OEE',
+                          'VELOCIDADE / RITMO',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -191,7 +191,7 @@ class MachineListItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${machine.speedMpm} m/min • ${machine.oee}%',
+                          '${machine.speedMpm} m/min • ${machine.rhythmPct.toInt()}%',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,

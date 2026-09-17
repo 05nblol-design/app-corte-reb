@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Indicadores Zaraplast — Mobile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --brand-primary: #0A1F44;
+      --brand-secondary: #0284C7;
+      
+      /* Light Theme (Clean Minimalist Industrial) */
+      --bg-color: #EDF2F7;
+      --surface-color: #FFFFFF;
+      --card-bg: #FFFFFF;
+      --card-border: #CBD5E1;
+      --text-primary: #0B1329;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --divider-color: #E2E8F0;
+      --table-header-bg: #F8FAFC;
+      --badge-bg: #F1F5F9;
+      --nav-bg: #FFFFFF;
+      --chart-track: #E2E8F0;
+
+      --concluded-color: #10B981;
+      --concluded-bg: #ECFDF5;
+      --concluded-border: #A7F3D0;
+      --concluded-label: #065F46;
+      
+      --remaining-color: #EF4444;
+      --remaining-bg: #FEF2F2;
+      --remaining-border: #FECACA;
+      --remaining-label: #991B1B;
+
+      --metric-speed: #0284C7;
+      --metric-today: #10B981;
+      --card-shadow: 0 3px 10px rgba(11, 19, 41, 0.05);
+
+      --graph-line: #0284C7;
+      --graph-target: #10B981;
+      --graph-fill: rgba(2, 132, 199, 0.08);
+    }
+
+    html.dark {
+      /* Dark Theme (High-Tech Industrial) */
+      --bg-color: #060B16;
+      --surface-color: #0D1527;
+      --card-bg: #101B30;
+      --card-border: #1E2E4E;
+      --text-primary: #FFFFFF;
+      --text-secondary: #CBD5E1;
+      --text-muted: #94A3B8;
+      --divider-color: #1E2D4E;
+      --table-header-bg: #14223D;
+      --badge-bg: #0C1628;
+      --nav-bg: #091020;
+      --chart-track: #19253F;
+
+      --concluded-color: #10B981;
+      --concluded-bg: rgba(16, 185, 129, 0.15);
+      --concluded-border: rgba(16, 185, 129, 0.3);
+      --concluded-label: #6EE7B7;
+      
+      --remaining-color: #F43F5E;
+      --remaining-bg: rgba(244, 63, 94, 0.15);
+      --remaining-border: rgba(244, 63, 94, 0.3);
+      --remaining-label: #FDA4AF;
+
+      --metric-speed: #38BDF8;
+      --metric-today: #34D399;
+      --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
+
+      --graph-line: #38BDF8;
+      --graph-target: #34D399;
+      --graph-fill: rgba(56, 189, 248, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #040812;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 8px;
+    }
+
+    /* Smartphone Device Shell */
+    .phone-mockup {
+      width: 100%;
+      max-width: 420px;
+      height: 890px;
+      background: var(--bg-color);
+      border-radius: 44px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 0 10px #111B30, 0 0 0 12px #203153;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.2s ease;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 0; background: var(--bg-color); }
+      .phone-mockup {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* System Status Bar */
+    .status-bar {
+      height: 38px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-primary);
+      background: var(--nav-bg);
+      z-index: 40;
+      border-bottom: 1px solid var(--divider-color);
+    }
+    .status-notch {
+      width: 100px;
+      height: 18px;
+      background: #000;
+      border-radius: 0 0 12px 12px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+    }
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Clean Minimalist App Header */
+    .clean-app-header {
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 30;
+    }
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-monogram {
+      width: 34px;
+      height: 34px;
+      background: var(--brand-primary);
+      border-radius: 8px;
+      border: 1px solid var(--brand-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 19px;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .shift-chip {
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      padding: 5px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .shift-chip.open {
+      background: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+      color: white;
+    }
+    .shift-chip i {
+      transition: transform 0.2s ease;
+    }
+    .shift-chip.open i {
+      transform: rotate(180deg);
+    }
+
+    /* Shift Dropdown Menu */
+    .shift-dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 48px;
+      width: 210px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      z-index: 55;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px) scale(0.96);
+      transition: all 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .shift-dropdown-menu.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .shift-item-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .shift-item-btn:hover {
+      background: var(--badge-bg);
+    }
+    .shift-item-btn.selected {
+      background: rgba(2, 132, 199, 0.12);
+      color: var(--brand-secondary);
+    }
+    .shift-item-text strong {
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .shift-item-text span {
+      display: block;
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .icon-btn:hover { color: var(--text-primary); }
+
+    /* Scrollable Mobile Viewport */
+    .app-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      padding-bottom: 75px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Base Card Structure */
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+    }
+    .kpi-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .kpi-card-header h3 {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    /* Transfer Card */
+    .transfer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+    }
+    .transfer-row:not(:last-child) {
+      border-bottom: 1px solid var(--divider-color);
+    }
+    .transfer-row .label-box .name {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .transfer-row .label-box .sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .transfer-row strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+
+    /* Clean Mobile Table */
+    .mobile-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .mobile-table th {
+      background: var(--table-header-bg);
+      color: var(--text-secondary);
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      text-align: right;
+    }
+    .mobile-table th:first-child { text-align: left; border-radius: 5px 0 0 5px; }
+    .mobile-table th:last-child { border-radius: 0 5px 5px 0; }
+    .mobile-table td {
+      padding: 7px 8px;
+      text-align: right;
+      border-bottom: 1px solid var(--divider-color);
+      color: var(--text-primary);
+    }
+    .mobile-table td:first-child {
+      text-align: left;
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .mobile-table tr.total-row td {
+      font-weight: 900;
+      border-top: 1.5px solid var(--card-border);
+      border-bottom: none;
+      padding-top: 8px;
+    }
+    .pct-val {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+    }
+    .pct-val.above { color: #DC2626; }
+    .pct-val.normal { color: #D97706; }
+    .pct-val.ok { color: #10B981; }
+
+    /* Leadership Machine Cards (NO OEE) */
+    .lead-machine-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--divider-color);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .lead-machine-item:last-child {
+      border-bottom: none;
+    }
+    .lead-machine-item.total-item {
+      border-top: 1.5px solid var(--card-border);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+    .lead-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .lead-code {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .lead-grid-metrics {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 4px;
+      align-items: baseline;
+    }
+    .lead-stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+    .lead-stat-box .lbl {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .lead-stat-box .val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-top: 1px;
+    }
+    .lead-stat-box .val.green {
+      color: var(--metric-today);
+    }
+    .lead-sub-ritmo {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    /* Donut Gauge Box */
+    .donut-mobile-box {
+      text-align: center;
+      align-items: center;
+    }
+    .donut-target-chip {
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    .donut-target-chip strong { color: var(--text-primary); font-weight: 900; font-family: 'Outfit', sans-serif; }
+
+    .donut-svg-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin: 0 auto 6px auto;
+    }
+    .donut-svg-wrapper svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+    .donut-val-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .donut-val-center span {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .donut-val-center strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text-primary);
+      display: block;
+      margin: 1px 0;
+    }
+
+    .donut-legend-mobile {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+    .legend-pill {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border-width: 1px;
+      border-style: solid;
+      text-align: center;
+      min-width: 100px;
+    }
+    .legend-pill.remaining {
+      background: var(--remaining-bg);
+      border-color: var(--remaining-border);
+    }
+    .legend-pill.remaining .leg-tag { color: var(--remaining-label); }
+    .legend-pill.concluded {
+      background: var(--concluded-bg);
+      border-color: var(--concluded-border);
+    }
+    .legend-pill.concluded .leg-tag { color: var(--concluded-label); }
+    .leg-tag {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .legend-pill strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-top: 1px;
+      display: block;
+    }
+
+    /* Rhythm Section & Charts */
+    .sector-chart-mobile {
+      width: 100%;
+      border-top: 1px solid var(--divider-color);
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+    .svg-mobile-box {
+      width: 100%;
+      height: 95px;
+    }
+    .svg-mobile-box svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .machine-charts-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .machine-chart-card {
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px 6px 12px;
+    }
+    .m-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .m-chart-header .code {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .m-chart-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 1px 7px;
+      border-radius: 4px;
+    }
+    .m-chart-badge.red {
+      color: #DC2626;
+      background: var(--remaining-bg);
+      border: 1px solid var(--remaining-border);
+    }
+    .m-chart-badge.green {
+      color: #059669;
+      background: var(--concluded-bg);
+      border: 1px solid var(--concluded-border);
+    }
+
+    /* Speed Dial Floating Action Menu */
+    .speed-dial-container {
+      position: absolute;
+      right: 18px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      z-index: 55;
+    }
+    .speed-dial-options {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(14px) scale(0.95);
+      transition: all 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .speed-dial-container.open .speed-dial-options {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .speed-dial-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .speed-dial-label {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    .speed-dial-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-secondary);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 15px;
+    }
+    .fab-main-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: white;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      box-shadow: 0 6px 16px rgba(10, 31, 68, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .speed-dial-container.open .fab-main-btn {
+      transform: rotate(45deg);
+      background: #DC2626;
+    }
+
+    /* Dismiss Layer */
+    .transparent-dismiss-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 50;
+      display: none;
+    }
+    .transparent-dismiss-layer.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Phone Mockup Container -->
+  <div class="phone-mockup">
+    
+    <!-- System Status Bar -->
+    <div class="status-bar">
+      <span id="phoneClock">11:18</span>
+      <div class="status-notch"></div>
+      <div class="status-icons">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="clean-app-header">
+      <div class="brand-left">
+        <div class="brand-monogram">Z</div>
+        <div class="brand-title">ZARAPLAST</div>
+      </div>
+      <div class="header-actions">
+        <!-- Turno Button -->
+        <div class="shift-chip" id="shiftChipBtn" onclick="toggleShiftDropdown()">
+          <span id="shiftTitleDisplay">1º Turno</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i>
+        </div>
+
+        <!-- Shift Dropdown -->
+        <div class="shift-dropdown-menu" id="shiftDropdownMenu">
+          <div class="shift-item-btn selected" onclick="selectShift('1º Turno', '06h às 14h (Agora)', this)">
+            <i class="fa-solid fa-circle-check"></i>
+            <div class="shift-item-text">
+              <strong>1º Turno</strong>
+              <span>06h às 14h (Agora)</span>
+            </div>
+          </div>
+          <div class="shift-item-btn" onclick="selectShift('2º Turno', '14h às 22h', this)">
+            <i class="fa-regular fa-circle"></i>
+            <div class="shift-item-text">
+              <strong>2º Turno</strong>
+              <span>14h às 22h</span>
+            </div>
+          </div>
+          <div class="shift-item-btn" onclick="selectShift('3º Turno', '22h às 06h', this)">
+            <i class="fa-regular fa-circle"></i>
+            <div class="shift-item-text">
+              <strong>3º Turno</strong>
+              <span>22h às 06h</span>
+            </div>
+          </div>
+          <div class="shift-item-btn" onclick="selectShift('Dia 24h', 'Consolidado 24h', this)">
+            <i class="fa-regular fa-circle"></i>
+            <div class="shift-item-text">
+              <strong>Dia Industrial</strong>
+              <span>Consolidado 24h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark / Light Theme Toggle -->
+        <button class="icon-btn" onclick="toggleTheme()" title="Alternar Tema">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Body Content -->
+    <div class="app-scroll-body" id="appBody">
+
+      <!-- 1. CARD TRANSFERÊNCIA -->
+      <section class="kpi-card" id="cardTransfer">
+        <div class="kpi-card-header">
+          <h3>TRANSFERÊNCIA</h3>
+          <span style="font-size: 9px; font-weight: 800; color: var(--text-muted);">KG</span>
+        </div>
+        <div class="transfer-row">
+          <div class="label-box">
+            <div class="name">Pesado Hoje</div>
+            <div class="sub">Total diário</div>
+          </div>
+          <strong>31.387</strong>
+        </div>
+        <div class="transfer-row">
+          <div class="label-box">
+            <div class="name">Transferência Mensal</div>
+            <div class="sub">Acumulado do mês</div>
+          </div>
+          <strong>601.372</strong>
+        </div>
+      </section>
+
+      <!-- 2. CARD CORTE & REBOBINAMENTO (Donut + Gráfico Setor) -->
+      <section class="kpi-card donut-mobile-box" id="cardCorte">
+        <div class="kpi-card-header" style="width: 100%;">
+          <h3>CORTE & REBOBINAMENTO</h3>
+          <span style="font-size: 9px; font-weight: 900; color: var(--brand-secondary);">META MÊS</span>
+        </div>
+
+        <div class="donut-target-chip">
+          Atual: <strong>14.631.933</strong> &nbsp;/&nbsp; Meta: <strong>27.500.000</strong>
+        </div>
+
+        <div class="donut-svg-wrapper">
+          <svg viewBox="0 0 100 100">
+            <!-- Background Track -->
+            <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--chart-track)" stroke-width="11" />
+            <!-- Remaining (Red): 46.8% -->
+            <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--remaining-color)" stroke-width="11"
+                    stroke-dasharray="245" stroke-dashoffset="-130.3" stroke-linecap="round" />
+            <!-- Concluded (Green): 53.2% -->
+            <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--concluded-color)" stroke-width="11"
+                    stroke-dasharray="245" stroke-dashoffset="114.7" stroke-linecap="round" />
+          </svg>
+          <div class="donut-val-center">
+            <span>Concluído</span>
+            <strong>53,2%</strong>
+          </div>
+        </div>
+
+        <!-- Legend Pills -->
+        <div class="donut-legend-mobile">
+          <div class="legend-pill remaining">
+            <div class="leg-tag"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Restante</div>
+            <strong>46,8%</strong>
+          </div>
+          <div class="legend-pill concluded">
+            <div class="leg-tag"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Feito</div>
+            <strong>53,2%</strong>
+          </div>
+        </div>
+
+        <!-- Sector Rhythm Line Chart -->
+        <div class="sector-chart-mobile">
+          <div style="font-size: 9.5px; font-weight: 800; color: var(--text-muted); text-align: left; letter-spacing: 0.5px; margin-bottom: 4px;">
+            % DO RITMO DO SETOR — 1º TURNO
+          </div>
+          <div class="svg-mobile-box" id="sectorChartSvg"></div>
+        </div>
+      </section>
+
+      <!-- 3. CARD APARAS % SOBRE A PRODUÇÃO -->
+      <section class="kpi-card" id="cardAparas">
+        <div class="kpi-card-header">
+          <h3>APARAS — % SOBRE A PRODUÇÃO</h3>
+          <span style="font-size: 9px; font-weight: 900; background: var(--badge-bg); border: 1px solid var(--card-border); padding: 2px 6px; border-radius: 4px; color: var(--text-muted);">META: 3,0%</span>
+        </div>
+        <table class="mobile-table">
+          <thead>
+            <tr>
+              <th>MÁQUINA</th>
+              <th>1º TURNO (AGORA)</th>
+              <th>MÊS</th>
+            </tr>
+          </thead>
+          <tbody id="aparasMobileBody"></tbody>
+        </table>
+      </section>
+
+      <!-- 4. CARD ACOMPANHAMENTO LIDERANÇA (Sem OEE, com Turno, Hoje e Mês) -->
+      <section class="kpi-card" id="cardLeadership">
+        <div class="kpi-card-header">
+          <h3>ACOMPANHAMENTO LIDERANÇA</h3>
+          <span style="font-size: 9px; font-weight: 800; color: var(--brand-secondary);">6 MÁQUINAS</span>
+        </div>
+        <div id="leadMachinesList"></div>
+      </section>
+
+      <!-- 5. CARD % DO RITMO POR MÁQUINA (Gráficos) -->
+      <section class="kpi-card" id="cardRhythm">
+        <div class="kpi-card-header">
+          <h3>% DO RITMO POR MÁQUINA — 1º TURNO</h3>
+          <span style="font-size: 8.5px; font-weight: 800; color: var(--concluded-color);"><span style="font-weight: 900;">---</span> META 100%</span>
+        </div>
+        <div class="machine-charts-column" id="machinesChartsList"></div>
+      </section>
+
+    </div>
+
+    <!-- Dismiss Layer for Popups -->
+    <div class="transparent-dismiss-layer" id="dismissLayer" onclick="closeAllOverlays()"></div>
+
+    <!-- Speed Dial Floating Action Menu (+) -->
+    <div class="speed-dial-container" id="speedDialContainer">
+      <div class="speed-dial-options">
+        <div class="speed-dial-item" onclick="scrollToSection('cardRhythm')">
+          <div class="speed-dial-label">Gráficos de Ritmo</div>
+          <div class="speed-dial-icon-btn"><i class="fa-solid fa-chart-line"></i></div>
+        </div>
+        <div class="speed-dial-item" onclick="scrollToSection('cardLeadership')">
+          <div class="speed-dial-label">Metros (Turno/Hoje/Mês)</div>
+          <div class="speed-dial-icon-btn"><i class="fa-solid fa-list-ol"></i></div>
+        </div>
+        <div class="speed-dial-item" onclick="scrollToSection('cardAparas')">
+          <div class="speed-dial-label">Aparas %</div>
+          <div class="speed-dial-icon-btn"><i class="fa-solid fa-pie-chart" style="color: #D97706;"></i></div>
+        </div>
+        <div class="speed-dial-item" onclick="scrollToSection('cardCorte')">
+          <div class="speed-dial-label">Corte & Rebobinamento</div>
+          <div class="speed-dial-icon-btn"><i class="fa-solid fa-circle-notch"></i></div>
+        </div>
+        <div class="speed-dial-item" onclick="scrollToSection('cardTransfer')">
+          <div class="speed-dial-label">Transferência</div>
+          <div class="speed-dial-icon-btn"><i class="fa-solid fa-scale-balanced"></i></div>
+        </div>
+      </div>
+
+      <button class="fab-main-btn" onclick="toggleSpeedDial()">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       PRODUCTION DATA (Exact Reference from Image, NO OEE)
+       ========================================================================== */
+    const machinesData = [
+      {
+        code: 'BCR006',
+        scrapShift: 5.96,
+        scrapMonth: 5.26,
+        shiftMeters: 36135,
+        shiftTarget: 60000,
+        expectedRitmo: 49927,
+        todayMeters: 36135,
+        monthMeters: 1853019,
+        rhythmPct: 71,
+        points: [52, 74, 69, 73, 71]
+      },
+      {
+        code: 'BCR007',
+        scrapShift: 6.48,
+        scrapMonth: 7.27,
+        shiftMeters: 32713,
+        shiftTarget: 48800,
+        expectedRitmo: 48928,
+        todayMeters: 32713,
+        monthMeters: 2318155,
+        rhythmPct: 69,
+        points: [58, 62, 59, 66, 69]
+      },
+      {
+        code: 'BCR012',
+        scrapShift: 5.82,
+        scrapMonth: 3.80,
+        shiftMeters: 56813,
+        shiftTarget: 69500,
+        expectedRitmo: 64969,
+        todayMeters: 56813,
+        monthMeters: 2187627,
+        rhythmPct: 84,
+        points: [60, 88, 86, 83, 84]
+      },
+      {
+        code: 'BCR014',
+        scrapShift: 10.07,
+        scrapMonth: 6.30,
+        shiftMeters: 60759,
+        shiftTarget: 73800,
+        expectedRitmo: 71744,
+        todayMeters: 60759,
+        monthMeters: 2510002,
+        rhythmPct: 82,
+        points: [72, 70, 78, 81, 82]
+      },
+      {
+        code: 'BCR015',
+        scrapShift: 3.08,
+        scrapMonth: 5.68,
+        shiftMeters: 60371,
+        shiftTarget: 94000,
+        expectedRitmo: 96942,
+        todayMeters: 60371,
+        monthMeters: 3498104,
+        rhythmPct: 65,
+        points: [55, 63, 61, 64, 65]
+      },
+      {
+        code: 'BCR016',
+        scrapShift: 7.16,
+        scrapMonth: 6.69,
+        shiftMeters: 37828,
+        shiftTarget: 63800,
+        expectedRitmo: 61777,
+        todayMeters: 37828,
+        monthMeters: 2265026,
+        rhythmPct: 60,
+        points: [45, 60, 58, 62, 60]
+      }
+    ];
+
+    const sectorTotals = {
+      code: 'SETOR',
+      scrapShift: 6.37,
+      scrapMonth: 5.76,
+      shiftMeters: 284619,
+      shiftTarget: 409000,
+      expectedRitmo: 394858,
+      todayMeters: 284619,
+      monthMeters: 14631933,
+      rhythmPct: 72,
+      points: [58, 70, 68, 72, 72]
+    };
+
+    function formatNumber(n) { return n.toLocaleString('pt-BR'); }
+    function formatPct(v) { return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%'; }
+
+    // 1. Render Aparas Table
+    function renderAparas() {
+      const tbody = document.getElementById('aparasMobileBody');
+      let html = '';
+      machinesData.forEach(m => {
+        const clsShift = m.scrapShift > 6.0 ? 'above' : (m.scrapShift > 3.0 ? 'normal' : 'ok');
+        const clsMonth = m.scrapMonth > 6.0 ? 'above' : (m.scrapMonth > 3.0 ? 'normal' : 'ok');
+        html += `
+          <tr>
+            <td>${m.code}</td>
+            <td><span class="pct-val ${clsShift}">${formatPct(m.scrapShift)}</span></td>
+            <td><span class="pct-val ${clsMonth}">${formatPct(m.scrapMonth)}</span></td>
+          </tr>
+        `;
+      });
+      // Setor
+      const setShiftCls = sectorTotals.scrapShift > 3.0 ? 'above' : 'ok';
+      const setMonthCls = sectorTotals.scrapMonth > 3.0 ? 'above' : 'ok';
+      html += `
+        <tr class="total-row">
+          <td>${sectorTotals.code}</td>
+          <td><span class="pct-val ${setShiftCls}">${formatPct(sectorTotals.scrapShift)}</span></td>
+          <td><span class="pct-val ${setMonthCls}">${formatPct(sectorTotals.scrapMonth)}</span></td>
+        </tr>
+      `;
+      tbody.innerHTML = html;
+    }
+
+    // 2. Render Leadership Machines (NO OEE)
+    function renderLeadership() {
+      const list = document.getElementById('leadMachinesList');
+      let html = '';
+
+      machinesData.forEach(m => {
+        html += `
+          <div class="lead-machine-item">
+            <div class="lead-item-top">
+              <span class="lead-code">${m.code}</span>
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">Meta: ${formatNumber(m.shiftTarget)}</span>
+            </div>
+            <div class="lead-grid-metrics">
+              <div class="lead-stat-box">
+                <span class="lbl">Metros Turno</span>
+                <span class="val">${formatNumber(m.shiftMeters)}</span>
+              </div>
+              <div class="lead-stat-box">
+                <span class="lbl">Metros Hoje</span>
+                <span class="val green">${formatNumber(m.todayMeters)}</span>
+              </div>
+              <div class="lead-stat-box" style="text-align: right;">
+                <span class="lbl">Metros Mês</span>
+                <span class="val">${formatNumber(m.monthMeters)}</span>
+              </div>
+            </div>
+            <div class="lead-sub-ritmo">
+              desde 06:00 do ritmo · esperado ${formatNumber(m.expectedRitmo)}
+            </div>
+          </div>
+        `;
+      });
+
+      // Total Setor
+      html += `
+        <div class="lead-machine-item total-item">
+          <div class="lead-item-top">
+            <span class="lead-code" style="font-size: 15px;">${sectorTotals.code}</span>
+            <span style="font-size: 10px; font-weight: 800; color: var(--text-primary);">Meta: ${formatNumber(sectorTotals.shiftTarget)}</span>
+          </div>
+          <div class="lead-grid-metrics">
+            <div class="lead-stat-box">
+              <span class="lbl">Metros Turno</span>
+              <span class="val" style="font-size: 15px;">${formatNumber(sectorTotals.shiftMeters)}</span>
+            </div>
+            <div class="lead-stat-box">
+              <span class="lbl">Metros Hoje</span>
+              <span class="val green" style="font-size: 15px;">${formatNumber(sectorTotals.todayMeters)}</span>
+            </div>
+            <div class="lead-stat-box" style="text-align: right;">
+              <span class="lbl">Metros Mês</span>
+              <span class="val" style="font-size: 15px;">${formatNumber(sectorTotals.monthMeters)}</span>
+            </div>
+          </div>
+          <div class="lead-sub-ritmo">
+            desde 06:00 do ritmo · esperado ${formatNumber(sectorTotals.expectedRitmo)}
+          </div>
+        </div>
+      `;
+
+      list.innerHTML = html;
+    }
+
+    // 3. Render Sector Rhythm SVG Chart
+    function renderSectorChart() {
+      const box = document.getElementById('sectorChartSvg');
+      const pts = sectorTotals.points;
+      const w = 340;
+      const h = 85;
+      const padL = 28;
+      const padR = 10;
+      const usableW = w - padL - padR;
+
+      function getY(pct) {
+        return 74 - ((pct - 0) / 150) * 65;
+      }
+      const y100 = getY(100);
+      const y50 = getY(50);
+
+      const coords = pts.map((p, i) => ({
+        x: padL + (i / (pts.length - 1)) * usableW,
+        y: getY(p)
+      }));
+
+      const pathData = coords.map((c, i) => (i === 0 ? `M ${c.x} ${c.y}` : `L ${c.x} ${c.y}`)).join(' ');
+      const areaData = `${pathData} L ${coords[coords.length - 1].x} 76 L ${coords[0].x} 76 Z`;
+
+      box.innerHTML = `
+        <svg viewBox="0 0 ${w} ${h}">
+          <defs>
+            <linearGradient id="mobSecGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0284C7" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#0284C7" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          <line x1="${padL}" y1="${y50}" x2="${w - padR}" y2="${y50}" stroke="var(--divider-color)" stroke-width="0.8" />
+          <text x="${padL - 3}" y="${y50 + 3}" fill="var(--text-muted)" font-size="7.5" text-anchor="end">50%</text>
+
+          <line x1="${padL}" y1="${y100}" x2="${w - padR}" y2="${y100}" stroke="var(--concluded-color)" stroke-width="1.2" stroke-dasharray="3 3" />
+          <text x="${padL - 3}" y="${y100 + 3}" fill="var(--concluded-color)" font-size="7.5" text-anchor="end" font-weight="800">100%</text>
+
+          <line x1="${padL}" y1="76" x2="${w - padR}" y2="76" stroke="var(--divider-color)" stroke-width="0.8" />
+
+          <path d="${areaData}" fill="url(#mobSecGrad)" />
+          <path d="${pathData}" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          ${coords.map(c => `<circle cx="${c.x}" cy="${c.y}" r="2.5" fill="#0284C7" stroke="#fff" stroke-width="1" />`).join('')}
+
+          <text x="${padL}" y="84" fill="var(--text-muted)" font-size="7.5">06h</text>
+          <text x="${padL + usableW * 0.5}" y="84" fill="var(--text-muted)" font-size="7.5" text-anchor="middle">10h</text>
+          <text x="${w - padR}" y="84" fill="var(--text-muted)" font-size="7.5" text-anchor="end">14h</text>
+        </svg>
+      `;
+    }
+
+    // 4. Render Machine Rhythm Charts
+    function renderMachineCharts() {
+      const list = document.getElementById('machinesChartsList');
+      let html = '';
+
+      machinesData.forEach((m, idx) => {
+        const isGood = m.rhythmPct >= 80;
+        const badgeCls = isGood ? 'green' : 'red';
+        const chartId = `mobMChart_${idx}`;
+
+        html += `
+          <div class="machine-chart-card">
+            <div class="m-chart-header">
+              <span class="code">${m.code}</span>
+              <span class="m-chart-badge ${badgeCls}">${m.rhythmPct}%</span>
+            </div>
+            <div class="svg-mobile-box" id="${chartId}"></div>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+
+      machinesData.forEach((m, idx) => {
+        const container = document.getElementById(`mobMChart_${idx}`);
+        if (!container) return;
+
+        const w = 340;
+        const h = 85;
+        const padL = 28;
+        const padR = 10;
+        const usableW = w - padL - padR;
+
+        function getY(pct) {
+          return 74 - ((pct - 0) / 150) * 65;
+        }
+        const y150 = getY(150);
+        const y100 = getY(100);
+        const y50 = getY(50);
+
+        const coords = m.points.map((p, i) => ({
+          x: padL + (i / (m.points.length - 1)) * usableW,
+          y: getY(p)
+        }));
+
+        const pathData = coords.map((c, i) => (i === 0 ? `M ${c.x} ${c.y}` : `L ${c.x} ${c.y}`)).join(' ');
+        const areaData = `${pathData} L ${coords[coords.length - 1].x} 76 L ${coords[0].x} 76 Z`;
+
+        container.innerHTML = `
+          <svg viewBox="0 0 ${w} ${h}">
+            <defs>
+              <linearGradient id="mobGrad_${idx}" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0284C7" stop-opacity="0.22" />
+                <stop offset="100%" stop-color="#0284C7" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <line x1="${padL}" y1="${y150}" x2="${w - padR}" y2="${y150}" stroke="var(--divider-color)" stroke-width="0.8" />
+            <text x="${padL - 3}" y="${y150 + 3}" fill="var(--text-muted)" font-size="7.5" text-anchor="end">150%</text>
+
+            <line x1="${padL}" y1="${y100}" x2="${w - padR}" y2="${y100}" stroke="var(--concluded-color)" stroke-width="1.2" stroke-dasharray="3 3" />
+            <text x="${padL - 3}" y="${y100 + 3}" fill="var(--concluded-color)" font-size="7.5" text-anchor="end" font-weight="800">100%</text>
+
+            <line x1="${padL}" y1="${y50}" x2="${w - padR}" y2="${y50}" stroke="var(--divider-color)" stroke-width="0.8" />
+            <text x="${padL - 3}" y="${y50 + 3}" fill="var(--text-muted)" font-size="7.5" text-anchor="end">50%</text>
+
+            <line x1="${padL}" y1="76" x2="${w - padR}" y2="76" stroke="var(--divider-color)" stroke-width="0.8" />
+
+            <path d="${areaData}" fill="url(#mobGrad_${idx})" />
+            <path d="${pathData}" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            ${coords.map(c => `<circle cx="${c.x}" cy="${c.y}" r="2.5" fill="#0284C7" stroke="#fff" stroke-width="1" />`).join('')}
+
+            <text x="${padL}" y="84" fill="var(--text-muted)" font-size="7.5">06h</text>
+            <text x="${padL + usableW * 0.5}" y="84" fill="var(--text-muted)" font-size="7.5" text-anchor="middle">10h</text>
+            <text x="${w - padR}" y="84" fill="var(--text-muted)" font-size="7.5" text-anchor="end">14h</text>
+          </svg>
+        `;
+      });
+    }
+
+    /* ==========================================================================
+       INTERACTIVE CONTROLS
+       ========================================================================== */
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      const isDark = html.classList.toggle('dark');
+      html.classList.toggle('light', !isDark);
+      icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      icon.style.color = isDark ? '#FCD34D' : '';
+      renderSectorChart();
+      renderMachineCharts();
+    }
+
+    function toggleShiftDropdown() {
+      closeSpeedDial();
+      const menu = document.getElementById('shiftDropdownMenu');
+      const chip = document.getElementById('shiftChipBtn');
+      const isOpen = menu.classList.toggle('active');
+      chip.classList.toggle('open', isOpen);
+      document.getElementById('dismissLayer').classList.toggle('active', isOpen);
+    }
+
+    function closeShiftDropdown() {
+      const menu = document.getElementById('shiftDropdownMenu');
+      const chip = document.getElementById('shiftChipBtn');
+      if (menu) menu.classList.remove('active');
+      if (chip) chip.classList.remove('open');
+      checkDismissLayer();
+    }
+
+    function selectShift(title, subtitle, btn) {
+      document.getElementById('shiftTitleDisplay').innerText = title;
+      document.querySelectorAll('.shift-item-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.querySelector('i').className = 'fa-regular fa-circle';
+      });
+      btn.classList.add('selected');
+      btn.querySelector('i').className = 'fa-solid fa-circle-check';
+      closeAllOverlays();
+    }
+
+    function toggleSpeedDial() {
+      closeShiftDropdown();
+      const container = document.getElementById('speedDialContainer');
+      const isOpen = container.classList.toggle('open');
+      document.getElementById('dismissLayer').classList.toggle('active', isOpen);
+    }
+
+    function closeSpeedDial() {
+      document.getElementById('speedDialContainer').classList.remove('open');
+      checkDismissLayer();
+    }
+
+    function checkDismissLayer() {
+      const isSpeedOpen = document.getElementById('speedDialContainer').classList.contains('open');
+      const isShiftOpen = document.getElementById('shiftDropdownMenu').classList.contains('active');
+      document.getElementById('dismissLayer').classList.toggle('active', isSpeedOpen || isShiftOpen);
+    }
+
+    function closeAllOverlays() {
+      closeSpeedDial();
+      closeShiftDropdown();
+      document.getElementById('dismissLayer').classList.remove('active');
+    }
+
+    function scrollToSection(id) {
+      closeAllOverlays();
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('phoneClock').innerText = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function init() {
+      renderAparas();
+      renderLeadership();
+      renderSectorChart();
+      renderMachineCharts();
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

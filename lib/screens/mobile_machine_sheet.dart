@@ -158,7 +158,7 @@ class MobileMachineSheet extends StatelessWidget {
                     scrapColor,
                   ),
                   const SizedBox(width: 8),
-                  _buildKpiTile('EFICIÊNCIA OEE', '${machine.oee}%', speedColor),
+                  _buildKpiTile('RITMO TURNO', '${machine.rhythmPct.toInt()}%', speedColor),
                 ],
               ),
 
