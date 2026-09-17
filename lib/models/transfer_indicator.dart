@@ -19,4 +19,24 @@ class TransferIndicator {
 
   double get todayProgress => (todayWeighed / todayTarget) * 100;
   double get monthProgress => (monthWeighed / monthTarget) * 100;
+
+  TransferIndicator copyWith({
+    double? todayWeighed,
+    double? monthWeighed,
+    double? todayTarget,
+    double? monthTarget,
+    double? trendTodayPercent,
+    double? trendMonthPercent,
+    String? unit,
+  }) {
+    return TransferIndicator(
+      todayWeighed: todayWeighed ?? this.todayWeighed,
+      monthWeighed: monthWeighed ?? this.monthWeighed,
+      todayTarget: todayTarget ?? this.todayTarget,
+      monthTarget: monthTarget ?? this.monthTarget,
+      trendTodayPercent: trendTodayPercent ?? this.trendTodayPercent,
+      trendMonthPercent: trendMonthPercent ?? this.trendMonthPercent,
+      unit: unit ?? this.unit,
+    );
+  }
 }

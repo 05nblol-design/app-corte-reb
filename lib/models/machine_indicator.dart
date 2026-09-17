@@ -75,21 +75,21 @@ class MachineIndicator {
 
   factory MachineIndicator.fromJson(Map<String, dynamic> json) {
     return MachineIndicator(
-      code: json['code'] ?? '',
+      code: json['code'] ?? json['maquina'] ?? '',
       name: json['name'] ?? '',
       status: json['status'] ?? 'running',
       operatorName: json['operatorName'] ?? '',
       speedMpm: (json['speedMpm'] as num?)?.toInt() ?? 0,
-      shiftMeters: (json['shiftMeters'] as num?)?.toInt() ?? 0,
-      shiftTarget: (json['shiftTarget'] as num?)?.toInt() ?? 0,
-      expectedRitmo: (json['expectedRitmo'] as num?)?.toInt() ?? 0,
-      rhythmPct: (json['rhythmPct'] as num?)?.toDouble() ?? 0.0,
+      shiftMeters: (json['shiftMeters'] as num?)?.toInt() ?? (json['metrosTurno'] as num?)?.toInt() ?? 0,
+      shiftTarget: (json['shiftTarget'] as num?)?.toInt() ?? (json['metaTurno'] as num?)?.toInt() ?? 0,
+      expectedRitmo: (json['expectedRitmo'] as num?)?.toInt() ?? (json['esperadoTurno'] as num?)?.toInt() ?? 0,
+      rhythmPct: _parsePct(json['rhythmPct'] ?? json['pctTurno']),
       rhythmPoints: (json['rhythmPoints'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
           [],
-      todayMeters: (json['todayMeters'] as num?)?.toInt() ?? 0,
-      monthMeters: (json['monthMeters'] as num?)?.toInt() ?? 0,
+      todayMeters: (json['todayMeters'] as num?)?.toInt() ?? (json['MetragemHoje'] as num?)?.toInt() ?? 0,
+      monthMeters: (json['monthMeters'] as num?)?.toInt() ?? (json['Metragem'] as num?)?.toInt() ?? 0,
       scrapShift: (json['scrapShift'] as num?)?.toDouble(),
       scrapDay: (json['scrapDay'] as num?)?.toDouble(),
       scrapMonth: (json['scrapMonth'] as num?)?.toDouble() ?? 0.0,
@@ -101,6 +101,13 @@ class MachineIndicator {
               .toList() ??
           [],
     );
+  }
+
+  static double _parsePct(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    final str = value.toString().replaceAll('%', '').replaceAll(',', '.').trim();
+    return double.tryParse(str) ?? 0.0;
   }
 
   Map<String, dynamic> toJson() => {

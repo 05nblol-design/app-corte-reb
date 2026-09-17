@@ -4,6 +4,7 @@ import '../models/machine_indicator.dart';
 import '../models/transfer_indicator.dart';
 import '../models/alert_model.dart';
 import '../services/websocket_service.dart';
+import '../services/firebase_http_service.dart';
 
 enum ShiftFilter { shift1, shift2, shift3, fullDay }
 
@@ -287,25 +288,42 @@ class IndicatorsState extends ChangeNotifier {
   WebSocketStatus get wsStatus => _wsService.status;
   String get wsUrl => _wsService.serverUrl;
 
+  // Firebase HTTPS Service (Realtime Database Sync)
+  late final FirebaseHttpService _firebaseService;
+  FirebaseSyncStatus get firebaseStatus => _firebaseService.status;
+  String get firebaseUrl => _firebaseService.firebaseUrl;
+
   DateTime _lastUpdate = DateTime.now();
   DateTime get lastUpdate => _lastUpdate;
 
-  IndicatorsState({String wsServerUrl = 'ws://localhost:1880/ws/telemetria'}) {
+  IndicatorsState({
+    String wsServerUrl = 'ws://localhost:1880/ws/telemetria',
+    String defaultFirebaseUrl = 'https://pp-corte-reb-default-rtdb.firebaseio.com/zaraplast/corte/dashboard.json',
+  }) {
     _wsService = WebSocketService(
       serverUrl: wsServerUrl,
-      onTelemetryReceived: _handleWebSocketTelemetry,
+      onTelemetryReceived: _handleTelemetry,
       onStatusChanged: (status) {
         notifyListeners();
       },
     );
     _wsService.connect();
+
+    _firebaseService = FirebaseHttpService(
+      firebaseUrl: defaultFirebaseUrl,
+      onDataReceived: _handleTelemetry,
+      onStatusChanged: (status) {
+        notifyListeners();
+      },
+    );
+    _firebaseService.start();
   }
 
   void updateWebSocketUrl(String newUrl) {
     _wsService.disconnect();
     _wsService = WebSocketService(
       serverUrl: newUrl,
-      onTelemetryReceived: _handleWebSocketTelemetry,
+      onTelemetryReceived: _handleTelemetry,
       onStatusChanged: (status) {
         notifyListeners();
       },
@@ -314,30 +332,62 @@ class IndicatorsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleWebSocketTelemetry(Map<String, dynamic> data) {
+  void updateFirebaseUrl(String newUrl) {
+    _firebaseService.updateUrl(newUrl);
+    notifyListeners();
+  }
+
+  static double? _parsePctString(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    final str = value.toString().replaceAll('%', '').replaceAll(',', '.').trim();
+    return double.tryParse(str);
+  }
+
+  void _handleTelemetry(Map<String, dynamic> data) {
     _lastUpdate = DateTime.now();
 
-    // 1. Transferência
-    if (data.containsKey('transferencia')) {
+    // 1. Transferência (formato customizado ou direto do Node-RED)
+    if (data.containsKey('transferenciaHoje') || data.containsKey('transferenciaMensal')) {
+      final hoje = (data['transferenciaHoje'] as num?)?.toDouble() ?? _transfer.todayWeighed;
+      final mensal = (data['transferenciaMensal'] as num?)?.toDouble() ?? _transfer.monthWeighed;
+      _transfer = _transfer.copyWith(
+        todayWeighed: hoje,
+        monthWeighed: mensal,
+      );
+    } else if (data.containsKey('transferencia')) {
       final t = data['transferencia'] as Map<String, dynamic>;
-      _transfer = TransferIndicator(
-        todayWeighed: (t['pesadoHoje'] as num?)?.toInt() ?? _transfer.todayWeighed,
-        monthWeighed: (t['mensal'] as num?)?.toInt() ?? _transfer.monthWeighed,
-        todayTarget: _transfer.todayTarget,
-        monthTarget: _transfer.monthTarget,
+      _transfer = _transfer.copyWith(
+        todayWeighed: (t['pesadoHoje'] as num?)?.toDouble() ?? _transfer.todayWeighed,
+        monthWeighed: (t['mensal'] as num?)?.toDouble() ?? _transfer.monthWeighed,
         trendTodayPercent: (t['tendenciaHoje'] as num?)?.toDouble() ?? _transfer.trendTodayPercent,
         trendMonthPercent: (t['tendenciaMes'] as num?)?.toDouble() ?? _transfer.trendMonthPercent,
       );
     }
 
-    // 2. Corte Geral
+    // 2. Corte Geral / Metas
+    if (data.containsKey('totalGeral')) {
+      _corteCurrentMeters = (data['totalGeral'] as num).toInt();
+    }
+    if (data.containsKey('meta')) {
+      _corteTargetMeters = (data['meta'] as num).toInt();
+    }
     if (data.containsKey('corteGeral')) {
       final c = data['corteGeral'] as Map<String, dynamic>;
       if (c['atual'] != null) _corteCurrentMeters = (c['atual'] as num).toInt();
       if (c['meta'] != null) _corteTargetMeters = (c['meta'] as num).toInt();
     }
 
-    // 3. Setor
+    // 3. Setor Aparas & Ritmo
+    if (data.containsKey('aparasSetor')) {
+      final asMap = data['aparasSetor'] as Map<String, dynamic>;
+      if (asMap['turnoTexto'] != null) {
+        _sectorScrapShift = _parsePctString(asMap['turnoTexto']) ?? _sectorScrapShift;
+      }
+      if (asMap['mesTexto'] != null) {
+        _sectorScrapMonth = _parsePctString(asMap['mesTexto']) ?? _sectorScrapMonth;
+      }
+    }
     if (data.containsKey('setor')) {
       final s = data['setor'] as Map<String, dynamic>;
       if (s['scrapShift'] != null) _sectorScrapShift = (s['scrapShift'] as num).toDouble();
@@ -349,8 +399,83 @@ class IndicatorsState extends ChangeNotifier {
       }
     }
 
-    // 4. Máquinas
-    if (data.containsKey('maquinas') && data['maquinas'] is List) {
+    // 4. Máquinas (compatível com Node-RED listaMaquinas + listaAparas + graficosMaquinas)
+    if (data.containsKey('listaMaquinas') && data['listaMaquinas'] is List) {
+      final rawList = data['listaMaquinas'] as List;
+      final aparasMap = <String, Map<String, dynamic>>{};
+      if (data['listaAparas'] is List) {
+        for (var item in data['listaAparas'] as List) {
+          if (item is Map<String, dynamic> && item['maquina'] != null) {
+            aparasMap[item['maquina'].toString()] = item;
+          }
+        }
+      }
+
+      final graficosMap = <String, Map<String, dynamic>>{};
+      if (data['graficosMaquinas'] is List) {
+        for (var item in data['graficosMaquinas'] as List) {
+          if (item is Map<String, dynamic> && item['maquina'] != null) {
+            graficosMap[item['maquina'].toString()] = item;
+          }
+        }
+      }
+
+      _machines = _machines.map((existing) {
+        final match = rawList.firstWhere(
+          (m) => m is Map<String, dynamic> &&
+              (m['maquina'] == existing.code || m['code'] == existing.code),
+          orElse: () => null,
+        );
+        if (match == null) return existing;
+        final m = match as Map<String, dynamic>;
+        final ap = aparasMap[existing.code];
+        final gr = graficosMap[existing.code];
+
+        final metrosTurno = (m['metrosTurno'] as num?)?.toInt() ??
+            (m['shiftMeters'] as num?)?.toInt() ??
+            existing.shiftMeters;
+        final metaTurno = (m['metaTurno'] as num?)?.toInt() ??
+            (m['shiftTarget'] as num?)?.toInt() ??
+            existing.shiftTarget;
+        final esperadoTurno = (m['esperadoTurno'] as num?)?.toInt() ??
+            (m['expectedRitmo'] as num?)?.toInt() ??
+            existing.expectedRitmo;
+        final metragemHoje = (m['MetragemHoje'] as num?)?.toInt() ??
+            (m['todayMeters'] as num?)?.toInt() ??
+            existing.todayMeters;
+        final metragemMes = (m['Metragem'] as num?)?.toInt() ??
+            (m['monthMeters'] as num?)?.toInt() ??
+            existing.monthMeters;
+
+        double rPct = existing.rhythmPct;
+        if (m['pctTurno'] != null) {
+          rPct = _parsePctString(m['pctTurno']) ?? rPct;
+        } else if (gr?['pctAtual'] != null) {
+          rPct = _parsePctString(gr!['pctAtual']) ?? rPct;
+        }
+
+        double? sShift = existing.scrapShift;
+        if (ap?['turnoTexto'] != null) {
+          sShift = _parsePctString(ap!['turnoTexto']) ?? sShift;
+        }
+
+        double sMes = existing.scrapMonth;
+        if (ap?['mesTexto'] != null) {
+          sMes = _parsePctString(ap!['mesTexto']) ?? sMes;
+        }
+
+        return existing.copyWith(
+          shiftMeters: metrosTurno,
+          shiftTarget: metaTurno,
+          expectedRitmo: esperadoTurno,
+          rhythmPct: rPct,
+          todayMeters: metragemHoje,
+          monthMeters: metragemMes,
+          scrapShift: sShift,
+          scrapMonth: sMes,
+        );
+      }).toList();
+    } else if (data.containsKey('maquinas') && data['maquinas'] is List) {
       final list = data['maquinas'] as List;
       _machines = list.map((item) {
         final map = item as Map<String, dynamic>;
@@ -364,6 +489,7 @@ class IndicatorsState extends ChangeNotifier {
   @override
   void dispose() {
     _wsService.disconnect();
+    _firebaseService.dispose();
     super.dispose();
   }
 }
