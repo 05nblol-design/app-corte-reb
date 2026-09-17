@@ -8,6 +8,15 @@ class AppColors {
   static const Color brandAccent = Color(0xFF0284C7); // Electric Cyan Accent
   static const Color brandGlow = Color(0xFF38BDF8);
 
+  // Common aliases
+  static const Color success = Color(0xFF047857);
+  static const Color danger = Color(0xFFBE123C);
+  static const Color warning = Color(0xFFB45309);
+  static const Color info = Color(0xFF0369A1);
+  static const Color neutral = Color(0xFF94A3B8);
+  static const Color darkHover = Color(0xFF1E2F52);
+  static const Color lightHover = Color(0xFFF1F5F9);
+
   // STATUS COLORS - LIGHT THEME (Executive SCADA Contrast)
   static const Color successLight = Color(0xFF047857); // Deep Emerald
   static const Color successBgLight = Color(0xFFECFDF5);

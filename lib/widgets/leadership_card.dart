@@ -262,7 +262,7 @@ class LeadershipCard extends StatelessWidget {
                   ),
                   if (m.code == 'BCR015')
                     Container(
-                      margin: const EdgeInsets.top(2),
+                      margin: const EdgeInsets.only(top: 2),
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                         color: AppColors.success.withOpacity(0.15),

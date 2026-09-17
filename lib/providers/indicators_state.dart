@@ -296,6 +296,10 @@ class IndicatorsState extends ChangeNotifier {
   DateTime _lastUpdate = DateTime.now();
   DateTime get lastUpdate => _lastUpdate;
 
+  bool get isLiveActive =>
+      firebaseStatus == FirebaseSyncStatus.connected ||
+      wsStatus == WebSocketStatus.connected;
+
   IndicatorsState({
     String wsServerUrl = 'ws://localhost:1880/ws/telemetria',
     String defaultFirebaseUrl = 'https://pp-corte-reb-default-rtdb.firebaseio.com/zaraplast/corte/dashboard.json',
@@ -334,6 +338,11 @@ class IndicatorsState extends ChangeNotifier {
 
   void updateFirebaseUrl(String newUrl) {
     _firebaseService.updateUrl(newUrl);
+    notifyListeners();
+  }
+
+  Future<void> manualRefresh() async {
+    _lastUpdate = DateTime.now();
     notifyListeners();
   }
 

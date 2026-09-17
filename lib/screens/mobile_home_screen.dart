@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../core/utils/formatters.dart';
 import '../models/machine_indicator.dart';
 import '../models/alert_model.dart';
 import '../providers/indicators_state.dart';

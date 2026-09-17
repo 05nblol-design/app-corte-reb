@@ -10,6 +10,8 @@ class CustomDonutGauge extends StatelessWidget {
   final String centerTitle;
   final String centerSubtitle;
   final bool isDark;
+  final Color? concludedColor;
+  final Color? remainingColor;
 
   const CustomDonutGauge({
     super.key,
@@ -20,6 +22,8 @@ class CustomDonutGauge extends StatelessWidget {
     this.centerTitle = '4,3%',
     this.centerSubtitle = 'CONCLUÍDO',
     this.isDark = true,
+    this.concludedColor,
+    this.remainingColor,
   });
 
   @override
@@ -37,6 +41,8 @@ class CustomDonutGauge extends StatelessWidget {
               remainingPercent: remainingPercent,
               strokeWidth: strokeWidth,
               isDark: isDark,
+              concludedColor: concludedColor,
+              remainingColor: remainingColor,
             ),
           ),
           Column(
@@ -94,12 +100,16 @@ class _ExecutiveGaugePainter extends CustomPainter {
   final double remainingPercent;
   final double strokeWidth;
   final bool isDark;
+  final Color? concludedColor;
+  final Color? remainingColor;
 
   _ExecutiveGaugePainter({
     required this.completedPercent,
     required this.remainingPercent,
     required this.strokeWidth,
     required this.isDark,
+    this.concludedColor,
+    this.remainingColor,
   });
 
   @override
@@ -130,12 +140,11 @@ class _ExecutiveGaugePainter extends CustomPainter {
     final remainingSweep = (remainingPercent / 100.0) * 2 * math.pi;
 
     // 3. Draw Completed Arc (Green)
-    final completedColor = isDark
-        ? AppColors.successDark
-        : AppColors.successLight;
+    final resolvedCompletedColor = concludedColor ??
+        (isDark ? AppColors.successDark : AppColors.successLight);
 
     final completedPaint = Paint()
-      ..color = completedColor
+      ..color = resolvedCompletedColor
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = strokeWidth
@@ -144,12 +153,11 @@ class _ExecutiveGaugePainter extends CustomPainter {
     canvas.drawArc(rect, startAngle, completedSweep, false, completedPaint);
 
     // 4. Draw Remaining Arc (Crimson)
-    final remainingColor = isDark
-        ? AppColors.dangerDark
-        : AppColors.dangerLight;
+    final resolvedRemainingColor = remainingColor ??
+        (isDark ? AppColors.dangerDark : AppColors.dangerLight);
 
     final remainingPaint = Paint()
-      ..color = remainingColor
+      ..color = resolvedRemainingColor
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = strokeWidth
