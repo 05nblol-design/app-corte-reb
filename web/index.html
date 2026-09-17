@@ -2,1253 +2,1292 @@
 <html lang="pt-BR" class="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Indicadores Zaraplast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Indicadores — Corte & Rebobinamento Zaraplast</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
+      /* Brand */
       --brand-primary: #0A1F44;
       --brand-secondary: #0284C7;
+      --brand-accent: #2563EB;
+
+      /* Light Theme (Clean Industrial High-Contrast) */
+      --bg-page: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --card-border: #E2E8F0;
+      --card-shadow: 0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
       
-      /* Dark Theme */
-      --bg-color: #060B16;
-      --surface-color: #0D1527;
-      --card-bg: #111D35;
-      --card-border: #1E2F52;
-      --text-primary: #FFFFFF;
-      --text-secondary: #CBD5E1;
+      --text-main: #0F172A;
+      --text-sub: #475569;
       --text-muted: #94A3B8;
-      --divider-color: #1E2D4E;
-      --badge-bg: #0B172C;
-      --nav-bg: #091020;
-      --chart-track: #19253F;
+      
+      --table-header-bg: #F8FAFC;
+      --table-row-hover: #F8FAFC;
+      --divider: #F1F5F9;
+      --row-border: #EDF2F7;
 
       --concluded-color: #10B981;
-      --concluded-bg: #064E3B;
-      --concluded-border: #0F766E;
-      --concluded-label: #6EE7B7;
-      
-      --remaining-color: #F43F5E;
-      --remaining-bg: #4C0519;
-      --remaining-border: #9F1239;
-      --remaining-label: #FDA4AF;
-
-      --status-run-bg: #064E3B;
-      --status-run-border: #0F766E;
-      --status-run-text: #6EE7B7;
-
-      --status-set-bg: #451A03;
-      --status-set-border: #B45309;
-      --status-set-text: #FCD34D;
-
-      --metric-speed: #38BDF8;
-      --metric-today: #34D399;
-      --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    html.light {
-      /* Light Theme (Clean Minimalist & Sharp Contrast) */
-      --bg-color: #EDF2F7;
-      --surface-color: #FFFFFF;
-      --card-bg: #FFFFFF;
-      --card-border: #CBD5E1;
-      --text-primary: #0B1329;
-      --text-secondary: #334155;
-      --text-muted: #475569;
-      --divider-color: #E2E8F0;
-      --badge-bg: #F1F5F9;
-      --nav-bg: #FFFFFF;
-      --chart-track: #E2E8F0;
-
-      --concluded-color: #047857;
       --concluded-bg: #ECFDF5;
       --concluded-border: #A7F3D0;
-      --concluded-label: #065F46;
       
-      --remaining-color: #BE123C;
-      --remaining-bg: #FFF1F2;
-      --remaining-border: #FECDD3;
-      --remaining-label: #9F1239;
+      --remaining-color: #EF4444;
+      --remaining-bg: #FEF2F2;
+      --remaining-border: #FECACA;
 
-      --status-run-bg: #ECFDF5;
-      --status-run-border: #A7F3D0;
-      --status-run-text: #065F46;
+      --graph-line: #0284C7;
+      --graph-target: #10B981;
+      --graph-grid: #E2E8F0;
+      --graph-fill: rgba(2, 132, 199, 0.08);
 
-      --status-set-bg: #FFFBEB;
-      --status-set-border: #FDE68A;
-      --status-set-text: #92400E;
+      --badge-warn-bg: #FEF2F2;
+      --badge-warn-text: #DC2626;
+      --badge-ok-bg: #ECFDF5;
+      --badge-ok-text: #059669;
+    }
 
-      --metric-speed: #0369A1;
-      --metric-today: #047857;
-      --card-shadow: 0 4px 10px rgba(11, 19, 41, 0.05);
+    html.dark {
+      /* Dark Theme (Sleek High-Tech Manufacturing) */
+      --bg-page: #070D18;
+      --card-bg: #0D1629;
+      --card-border: #1E293B;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      
+      --text-main: #F8FAFC;
+      --text-sub: #94A3B8;
+      --text-muted: #64748B;
+      
+      --table-header-bg: #101D35;
+      --table-row-hover: #142340;
+      --divider: #1E293B;
+      --row-border: #16243E;
+
+      --concluded-color: #10B981;
+      --concluded-bg: rgba(16, 185, 129, 0.15);
+      --concluded-border: rgba(16, 185, 129, 0.3);
+      
+      --remaining-color: #F43F5E;
+      --remaining-bg: rgba(244, 63, 94, 0.15);
+      --remaining-border: rgba(244, 63, 94, 0.3);
+
+      --graph-line: #38BDF8;
+      --graph-target: #34D399;
+      --graph-grid: #1E293B;
+      --graph-fill: rgba(56, 189, 248, 0.1);
+
+      --badge-warn-bg: rgba(244, 63, 94, 0.15);
+      --badge-warn-text: #FB7185;
+      --badge-ok-bg: rgba(16, 185, 129, 0.15);
+      --badge-ok-text: #34D399;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
-      background: #040812;
+      background: var(--bg-page);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px 8px;
-    }
-
-    /* Smartphone Device Shell */
-    .phone-mockup {
-      width: 100%;
-      max-width: 414px;
-      height: 870px;
-      background: var(--bg-color);
-      border-radius: 44px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 0 10px #111B30, 0 0 0 12px #203153;
-      display: flex;
       flex-direction: column;
-      position: relative;
-      overflow: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    @media (max-width: 480px) {
-      body { padding: 0; background: var(--bg-color); }
-      .phone-mockup {
-        max-width: 100%;
-        height: 100vh;
-        border-radius: 0;
-        box-shadow: none;
-      }
-    }
-
-    /* System Status Bar */
-    .status-bar {
-      height: 38px;
-      padding: 0 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-primary);
-      background: var(--nav-bg);
-      z-index: 40;
-    }
-    .status-notch {
-      width: 100px;
-      height: 18px;
-      background: #000;
-      border-radius: 0 0 12px 12px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0;
-    }
-    .status-icons {
-      display: flex;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    /* Clean Minimalist App Header */
-    .clean-app-header {
-      background: var(--nav-bg);
+    /* Top Navigation Bar */
+    .top-navbar {
+      background: var(--card-bg);
       border-bottom: 1px solid var(--card-border);
-      padding: 10px 16px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative;
-      z-index: 30;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
     }
-    .brand-left {
+    .brand-section {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
-    .brand-monogram {
-      width: 36px;
-      height: 36px;
-      background: var(--brand-primary);
+    .brand-logo-mark {
+      width: 38px;
+      height: 38px;
+      background: #0A1F44;
       border-radius: 8px;
-      border: 1px solid var(--brand-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #FFFFFF;
       font-family: 'Outfit', sans-serif;
       font-weight: 900;
-      font-size: 20px;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 2px 6px rgba(10,31,68,0.25);
     }
-    .brand-title {
+    .brand-title-group h1 {
       font-family: 'Outfit', sans-serif;
       font-size: 18px;
       font-weight: 900;
-      letter-spacing: 1.0px;
-      color: var(--text-primary);
+      letter-spacing: 0.8px;
+      color: var(--text-main);
+      line-height: 1.1;
     }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .shift-chip {
-      background: var(--badge-bg);
-      border: 1px solid var(--card-border);
-      padding: 5px 10px;
-      border-radius: 16px;
+    .brand-title-group span {
       font-size: 11px;
-      font-weight: 900;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .shift-chip.open {
-      background: var(--brand-secondary);
-      border-color: var(--brand-secondary);
-      color: white;
-    }
-    .shift-chip i {
-      transition: transform 0.2s ease;
-    }
-    .shift-chip.open i {
-      transform: rotate(180deg);
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
     }
 
-    /* Shift Dropdown Menu (Nítido, Sem Desfoque e Sem Escurecer a Tela) */
-    .shift-dropdown-menu {
-      position: absolute;
-      top: 52px;
-      right: 50px;
-      width: 220px;
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 12px;
-      padding: 6px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      z-index: 55;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-6px) scale(0.96);
-      transition: all 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-    }
-    .shift-dropdown-menu.active {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-    .shift-item-btn {
+    .nav-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
+      gap: 12px;
+    }
+    .status-live-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #10B981;
+      background: var(--concluded-bg);
+      border: 1px solid var(--concluded-border);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .live-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .ctrl-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 7px 12px;
       border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: all 0.15s ease;
     }
-    .shift-item-btn:hover {
-      background: var(--badge-bg);
-    }
-    .shift-item-btn.selected {
-      background: rgba(2, 132, 199, 0.12);
-    }
-    .shift-item-btn i {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .shift-item-btn.selected i {
+    .ctrl-btn:hover {
+      border-color: var(--brand-secondary);
       color: var(--brand-secondary);
     }
-    .shift-item-text strong {
-      display: block;
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--text-primary);
-    }
-    .shift-item-text span {
-      display: block;
-      font-size: 10px;
-      color: var(--text-secondary);
-      margin-top: 1px;
-    }
 
-    .icon-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      cursor: pointer;
+    /* Shift Selector Dropdown */
+    .shift-menu-wrapper {
+      position: relative;
     }
-    .icon-btn:hover { color: var(--text-primary); }
-
-    /* Scrollable Viewport */
-    .app-scroll-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px;
-      padding-bottom: 30px;
-    }
-
-    /* Base Card Structure */
-    .kpi-card {
+    .shift-menu-dropdown {
+      position: absolute;
+      top: 42px;
+      right: 0;
+      width: 220px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: var(--card-shadow);
+      border-radius: 10px;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 60;
     }
-    .kpi-card-header {
+    .shift-menu-dropdown.show {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
     }
-    .kpi-card-header h3 {
+    .shift-option {
+      padding: 8px 12px;
+      border-radius: 6px;
       font-size: 12px;
-      font-weight: 900;
-      color: var(--text-primary);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+    .shift-option:hover {
+      background: var(--table-header-bg);
+      color: var(--brand-secondary);
+    }
+    .shift-option.selected {
+      background: rgba(2, 132, 199, 0.1);
+      color: var(--brand-secondary);
+      font-weight: 800;
     }
 
-    /* Donut Gauge Box */
-    .donut-mobile-box {
-      text-align: center;
+    /* Main Container Grid */
+    .dashboard-container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      gap: 24px;
     }
-    .donut-target-chip {
-      background: var(--badge-bg);
-      border: 1px solid var(--card-border);
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 14px;
+
+    /* Row 1: 2 Columns (Transferência & Aparas) */
+    .row-top {
+      display: grid;
+      grid-template-columns: 4.8fr 7.2fr;
+      gap: 24px;
+    }
+
+    /* Row 2: 2 Columns (Acompanhamento Liderança & Corte/Rebobinamento) */
+    .row-middle {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 24px;
+    }
+
+    /* Row 3: 1 Column Full Width (% Do Ritmo Por Máquina) */
+    .row-bottom {
       width: 100%;
     }
-    .donut-target-chip strong { color: var(--text-primary); font-weight: 900; font-family: 'Outfit', sans-serif; }
 
-    .donut-svg-wrapper {
+    /* Card Base Styling */
+    .dash-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
       position: relative;
-      width: 185px;
-      height: 185px;
-      margin: 0 auto 10px auto;
     }
-    .donut-svg-wrapper svg {
-      transform: rotate(-90deg);
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+    }
+
+    /* Card Transferência */
+    .transfer-metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 12px 0;
+    }
+    .transfer-metric-item:not(:last-child) {
+      border-bottom: 1px solid var(--divider);
+    }
+    .transfer-label-group .metric-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .transfer-label-group .metric-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .transfer-metric-item strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    /* Card Aparas Table */
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .target-pill-small {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: var(--table-header-bg);
+      border: 1px solid var(--card-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .clean-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .clean-table th {
+      background: var(--table-header-bg);
+      color: var(--text-sub);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    .clean-table th:first-child {
+      text-align: left;
+      border-radius: 6px 0 0 6px;
+    }
+    .clean-table th:last-child {
+      border-radius: 0 6px 6px 0;
+    }
+    .clean-table td {
+      padding: 7px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--row-border);
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+    .clean-table td:first-child {
+      text-align: left;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+    .clean-table tr:hover td {
+      background: var(--table-row-hover);
+    }
+    .clean-table tr.total-row td {
+      font-weight: 900;
+      border-top: 1.5px solid var(--card-border);
+      border-bottom: none;
+      padding-top: 9px;
+      font-size: 13.5px;
+    }
+    .pct-val {
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+    }
+    .pct-val.above {
+      color: #DC2626;
+    }
+    .pct-val.normal {
+      color: #D97706;
+    }
+    .pct-val.ok {
+      color: #10B981;
+    }
+
+    /* Acompanhamento Liderança */
+    .lead-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .lead-table th {
+      background: var(--table-header-bg);
+      color: var(--text-sub);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 8px 12px;
+    }
+    .lead-table th:nth-child(1) { text-align: left; border-radius: 6px 0 0 6px; }
+    .lead-table th:nth-child(2) { text-align: center; }
+    .lead-table th:nth-child(3) { text-align: center; }
+    .lead-table th:nth-child(4) { text-align: right; border-radius: 0 6px 6px 0; }
+
+    .lead-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--row-border);
+      vertical-align: middle;
+    }
+    .lead-table tr:hover td {
+      background: var(--table-row-hover);
+    }
+    .lead-table tr.total-row td {
+      font-weight: 900;
+      border-top: 1.5px solid var(--card-border);
+      border-bottom: none;
+      padding-top: 12px;
+    }
+    .m-code {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .m-turno-box {
+      text-align: center;
+    }
+    .m-turno-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+      display: block;
+    }
+    .m-turno-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+    .m-hoje-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: #10B981;
+      text-align: center;
+      display: block;
+    }
+    .m-mes-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+      text-align: right;
+      display: block;
+    }
+
+    /* Corte & Rebobinamento Card */
+    .corte-header-center {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .corte-header-center h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      color: #0A1F44;
+      text-transform: uppercase;
+    }
+    html.dark .corte-header-center h2 {
+      color: #38BDF8;
+    }
+    .corte-target-pill {
+      display: inline-block;
+      margin-top: 4px;
+      background: var(--table-header-bg);
+      border: 1px solid var(--card-border);
+      padding: 4px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .corte-target-pill strong {
+      color: var(--text-main);
+      font-weight: 900;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .donut-gauge-box {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 10px auto 4px auto;
+    }
+    .donut-gauge-box svg {
       width: 100%;
       height: 100%;
+      transform: rotate(-90deg);
     }
-    .donut-val-center {
+    .donut-center-content {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
     }
-    .donut-val-center span {
-      font-size: 9px;
-      color: var(--brand-secondary);
-      font-weight: 900;
-      letter-spacing: 0.8px;
-      background: var(--badge-bg);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .donut-val-center strong {
-      font-family: 'Outfit', sans-serif;
-      font-size: 34px;
-      font-weight: 900;
-      color: var(--text-primary);
-      display: block;
-      letter-spacing: -0.8px;
-      margin: 2px 0;
-    }
-    .donut-val-center p {
-      font-size: 8px;
-      font-weight: 800;
+    .donut-center-content span {
+      font-size: 11px;
+      font-weight: 700;
       color: var(--text-muted);
-      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .donut-center-content strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--text-main);
+      display: block;
+      line-height: 1;
+      margin: 3px 0 2px 0;
     }
 
-    /* Dual Solid Legend Tiles */
-    .donut-legend-mobile {
+    .donut-legend-row {
       display: flex;
       justify-content: center;
-      gap: 14px;
-      width: 100%;
+      gap: 36px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+    .leg-item {
+      text-align: center;
+    }
+    .leg-tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .leg-tag.remaining { color: var(--remaining-color); }
+    .leg-tag.concluded { color: var(--concluded-color); }
+    .leg-item strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+      display: block;
+      margin-top: 1px;
+    }
+
+    /* Sector Rhythm Line Chart Inside Corte Card */
+    .sector-rhythm-section {
+      border-top: 1px solid var(--divider);
+      padding-top: 14px;
+      margin-top: 8px;
+    }
+    .section-mini-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* Bottom Rhythm Per Machine Grid */
+    .machines-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
       margin-top: 6px;
     }
-    .legend-tile {
-      padding: 8px 16px;
+
+    .mini-chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 10px;
-      border-width: 1px;
-      border-style: solid;
-      text-align: center;
-      min-width: 110px;
-    }
-    .legend-tile.remaining {
-      background: var(--remaining-bg);
-      border-color: var(--remaining-border);
-    }
-    .legend-tile.remaining .leg-label {
-      color: var(--remaining-label);
-    }
-    .legend-tile.concluded {
-      background: var(--concluded-bg);
-      border-color: var(--concluded-border);
-    }
-    .legend-tile.concluded .leg-label {
-      color: var(--concluded-label);
-    }
-
-    .leg-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-    }
-    .leg-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-    }
-    .leg-val {
-      font-family: 'Outfit', sans-serif;
-      font-size: 19px;
-      font-weight: 900;
-      color: var(--text-primary);
-      margin-top: 2px;
-      display: block;
-    }
-
-    .cadence-footer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--divider-color);
-      padding-top: 12px;
-      margin-top: 14px;
-      width: 100%;
-    }
-
-    /* Transfer Card Metrics */
-    .metric-row-flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .metric-row-flex strong {
-      font-family: 'Outfit', sans-serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--text-primary);
-      letter-spacing: -0.5px;
-    }
-    .progress-bar-thin {
-      height: 5px;
-      background: var(--divider-color);
-      border-radius: 3px;
-      margin: 6px 0 12px 0;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--brand-secondary);
-      border-radius: 3px;
-    }
-
-    /* Machine Item Card */
-    .machine-card-item {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      box-shadow: var(--card-shadow);
-    }
-    .machine-top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .machine-title-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .machine-code-text {
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      color: var(--text-primary);
-    }
-    .status-badge {
-      font-size: 9px;
-      font-weight: 900;
-      padding: 3px 7px;
-      border-radius: 5px;
-      letter-spacing: 0.4px;
-      border-width: 1px;
-      border-style: solid;
-    }
-    .status-running {
-      background: var(--status-run-bg);
-      border-color: var(--status-run-border);
-      color: var(--status-run-text);
-    }
-    .status-setup {
-      background: var(--status-set-bg);
-      border-color: var(--status-set-border);
-      color: var(--status-set-text);
-    }
-
-    .scrap-pill-soft {
-      padding: 4px 9px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 900;
-      border-width: 1px;
-      border-style: solid;
-    }
-    .scrap-pill-soft.ok {
-      background: var(--concluded-bg);
-      border-color: var(--concluded-border);
-      color: var(--concluded-label);
-    }
-    .scrap-pill-soft.alert {
-      background: var(--remaining-bg);
-      border-color: var(--remaining-border);
-      color: var(--remaining-label);
-    }
-
-    .machine-op-text {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin: 6px 0 10px 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .machine-metrics-grid {
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid var(--divider-color);
-      padding-top: 8px;
-    }
-    .m-stat-box {
+      padding: 12px 14px 8px 14px;
       display: flex;
       flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s ease;
     }
-    .m-stat-box span {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-    }
-    .m-stat-box strong {
-      font-size: 15px;
-      font-weight: 900;
-      color: var(--text-primary);
-      margin-top: 1px;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    /* Speed Dial Floating Action Menu */
-    .speed-dial-container {
-      position: absolute;
-      right: 20px;
-      bottom: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      z-index: 55;
-    }
-
-    .speed-dial-options {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-      margin-bottom: 12px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(16px) scale(0.95);
-      transition: all 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-    }
-    .speed-dial-container.open .speed-dial-options {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-
-    .speed-dial-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-    .speed-dial-label {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-primary);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 900;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      white-space: nowrap;
-    }
-    .speed-dial-item.active .speed-dial-label {
-      border-color: var(--brand-secondary);
-      color: var(--brand-secondary);
-    }
-    .speed-dial-icon-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--brand-primary);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      font-size: 17px;
-    }
-    html.dark .speed-dial-icon-btn {
-      color: #38BDF8;
-    }
-    .speed-dial-item.active .speed-dial-icon-btn {
-      background: var(--brand-secondary);
-      color: white;
+    .mini-chart-card:hover {
       border-color: var(--brand-secondary);
     }
-
-    /* Main Floating + Button */
-    .fab-main-btn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--brand-primary);
-      color: white;
-      border: 1.5px solid rgba(255,255,255,0.2);
-      box-shadow: 0 6px 16px rgba(10, 31, 68, 0.35);
+    .mini-chart-header {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.2s ease;
+      margin-bottom: 6px;
     }
-    .fab-main-btn:active {
-      transform: scale(0.94);
-    }
-    .speed-dial-container.open .fab-main-btn {
-      transform: rotate(45deg);
-      background: #BE123C;
-      border-color: #FECDD3;
-    }
-
-    /* Transparent Click-Dismiss Detector (ZERO Blur, ZERO Darkening) */
-    .transparent-dismiss-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      z-index: 50;
-      display: none;
-    }
-    .transparent-dismiss-layer.active {
-      display: block;
-    }
-
-    /* Modal Machine Sheet */
-    .sheet-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 60;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      display: flex;
-      align-items: flex-end;
-    }
-    .sheet-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .bottom-sheet-content {
-      background: var(--surface-color);
-      width: 100%;
-      border-radius: 20px 20px 0 0;
-      padding: 16px 20px 24px 20px;
-      box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
-      transform: translateY(100%);
-      transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
-      max-height: 85%;
-      overflow-y: auto;
-    }
-    .sheet-overlay.active .bottom-sheet-content {
-      transform: translateY(0);
-    }
-    .sheet-drag-handle {
-      width: 36px;
-      height: 4px;
-      background: var(--text-muted);
-      border-radius: 4px;
-      margin: 0 auto 14px auto;
-      opacity: 0.5;
-    }
-
-    .kpi-2x2-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin: 12px 0;
-    }
-    .kpi-tile-box {
-      background: var(--badge-bg);
-      border: 1px solid var(--card-border);
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .kpi-tile-box span { font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; }
-    .kpi-tile-box strong {
-      display: block;
-      font-family: 'Outfit', sans-serif;
-      font-size: 16px;
-      font-weight: 900;
-      color: var(--text-primary);
-      margin-top: 2px;
-    }
-
-    .btn-full {
-      width: 100%;
-      height: 42px;
-      border-radius: 8px;
+    .mini-chart-code {
       font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      border: none;
-      margin-top: 10px;
-      background: var(--brand-primary);
-      color: white;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: 0.3px;
+    }
+    .mini-chart-pct {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+    .mini-chart-pct.red {
+      color: #DC2626;
+      background: var(--badge-warn-bg);
+    }
+    .mini-chart-pct.green {
+      color: #059669;
+      background: var(--badge-ok-bg);
+    }
+
+    /* SVG Chart Containers */
+    .svg-chart-box {
+      width: 100%;
+      height: 110px;
+      position: relative;
+    }
+    .svg-chart-box svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Tooltip */
+    .chart-tooltip {
+      position: absolute;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -100%);
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* TV Mode adjustments */
+    body.tv-mode .dashboard-container {
+      max-width: 100%;
+      padding: 16px 20px;
+    }
+    body.tv-mode .top-navbar {
+      padding: 6px 20px;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1200px) {
+      .row-top { grid-template-columns: 1fr; }
+      .row-middle { grid-template-columns: 1fr; }
+      .machines-chart-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 12px; gap: 16px; }
+      .machines-chart-grid { grid-template-columns: 1fr; }
+      .transfer-metric-item strong { font-size: 22px; }
+      .donut-gauge-box { width: 170px; height: 170px; }
+      .top-navbar { padding: 8px 12px; }
+      .brand-title-group span { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <div class="phone-mockup">
-    
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <span id="phoneTime">11:18</span>
-      <div class="status-notch"></div>
-      <div class="status-icons">
-        <i class="fa-solid fa-signal"></i>
-        <i class="fa-solid fa-wifi"></i>
-        <i class="fa-solid fa-battery-full"></i>
+  <!-- Top Navigation Bar -->
+  <header class="top-navbar">
+    <div class="brand-section">
+      <div class="brand-logo-mark">Z</div>
+      <div class="brand-title-group">
+        <h1>ZARAPLAST</h1>
+        <span>CORTE & REBOBINAMENTO • MONITOR INDUSTRIAL</span>
       </div>
     </div>
 
-    <!-- Clean Minimalist Header -->
-    <div class="clean-app-header">
-      <div class="brand-left">
-        <div class="brand-monogram">Z</div>
-        <div class="brand-title">ZARAPLAST</div>
+    <div class="nav-controls">
+      <div class="status-live-chip">
+        <span class="live-pulse"></span>
+        <span>AO VIVO</span>
       </div>
-      <div class="header-actions">
-        <!-- Turno Button (Expands in-place) -->
-        <div class="shift-chip" id="shiftChipBtn" onclick="toggleShiftDropdown()">
-          <span id="shiftTitleDisplay">1º Turno</span>
-          <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i>
-        </div>
 
-        <!-- Shift Dropdown Menu (In-place - 100% Nítido) -->
-        <div class="shift-dropdown-menu" id="shiftDropdownMenu">
-          <div class="shift-item-btn selected" id="shiftOpt1" onclick="selectShift('1º Turno', '06h às 14h (Agora)', this)">
-            <i class="fa-solid fa-circle-check"></i>
-            <div class="shift-item-text">
-              <strong>1º Turno</strong>
-              <span>06h às 14h (Agora)</span>
-            </div>
-          </div>
-          <div class="shift-item-btn" id="shiftOpt2" onclick="selectShift('2º Turno', '14h às 22h', this)">
-            <i class="fa-regular fa-circle"></i>
-            <div class="shift-item-text">
-              <strong>2º Turno</strong>
-              <span>14h às 22h</span>
-            </div>
-          </div>
-          <div class="shift-item-btn" id="shiftOpt3" onclick="selectShift('3º Turno', '22h às 06h', this)">
-            <i class="fa-regular fa-circle"></i>
-            <div class="shift-item-text">
-              <strong>3º Turno</strong>
-              <span>22h às 06h</span>
-            </div>
-          </div>
-          <div class="shift-item-btn" id="shiftOpt4" onclick="selectShift('Dia 24h', 'Consolidado 24h', this)">
-            <i class="fa-regular fa-circle"></i>
-            <div class="shift-item-text">
-              <strong>Dia Industrial</strong>
-              <span>Consolidado 24h</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="icon-btn" onclick="toggleTheme()">
-          <i class="fa-solid fa-moon" id="themeIcon" style="color: #0A1F44;"></i>
+      <!-- Shift Selector -->
+      <div class="shift-menu-wrapper">
+        <button class="ctrl-btn" id="shiftBtn" onclick="toggleShiftDropdown()">
+          <i class="fa-solid fa-clock"></i>
+          <span id="shiftBtnText">1º Turno (Agora)</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 9px; margin-left: 2px;"></i>
         </button>
-      </div>
-    </div>
-
-    <!-- Scrollable Screen Content (100% Nítido) -->
-    <div class="app-scroll-body" id="appBody"></div>
-
-    <!-- Transparent Click Detector (ZERO Blur, ZERO Dimming) -->
-    <div class="transparent-dismiss-layer" id="dismissLayer" onclick="closeAllOverlays()"></div>
-
-    <!-- Speed Dial Floating Action Menu (+) -->
-    <div class="speed-dial-container" id="speedDialContainer">
-      <div class="speed-dial-options">
-        <div class="speed-dial-item" id="itemAlerts" onclick="selectTabFromSpeedDial(3)">
-          <div class="speed-dial-label">Alertas (2)</div>
-          <div class="speed-dial-icon-btn"><i class="fa-solid fa-bell" style="color:var(--remaining-color);"></i></div>
-        </div>
-        <div class="speed-dial-item" id="itemScrap" onclick="selectTabFromSpeedDial(2)">
-          <div class="speed-dial-label">Aparas %</div>
-          <div class="speed-dial-icon-btn"><i class="fa-solid fa-pie-chart" style="color:#D97706;"></i></div>
-        </div>
-        <div class="speed-dial-item" id="itemMachines" onclick="selectTabFromSpeedDial(1)">
-          <div class="speed-dial-label">Máquinas</div>
-          <div class="speed-dial-icon-btn"><i class="fa-solid fa-industry" style="color:var(--brand-secondary);"></i></div>
-        </div>
-        <div class="speed-dial-item active" id="itemGeneral" onclick="selectTabFromSpeedDial(0)">
-          <div class="speed-dial-label">Geral (Dashboard)</div>
-          <div class="speed-dial-icon-btn"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="shift-menu-dropdown" id="shiftDropdown">
+          <div class="shift-option selected" onclick="changeShift('1º Turno (Agora)', 0)">1º Turno (06h às 14h)</div>
+          <div class="shift-option" onclick="changeShift('2º Turno', 1)">2º Turno (14h às 22h)</div>
+          <div class="shift-option" onclick="changeShift('3º Turno', 2)">3º Turno (22h às 06h)</div>
+          <div class="shift-option" onclick="changeShift('Dia 24h', 3)">Dia Industrial (24h)</div>
         </div>
       </div>
 
-      <button class="fab-main-btn" onclick="toggleSpeedDial()">
-        <i class="fa-solid fa-plus"></i>
+      <!-- TV Presentation Mode -->
+      <button class="ctrl-btn" onclick="toggleTVMode()" title="Modo TV / Painel Expandido">
+        <i class="fa-solid fa-expand"></i>
+        <span>TV</span>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button class="ctrl-btn" onclick="toggleTheme()" id="themeBtn" title="Alternar Tema Claro/Escuro">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
       </button>
     </div>
+  </header>
 
-    <!-- Machine Detail Sheet -->
-    <div class="sheet-overlay" id="machineSheet">
-      <div class="bottom-sheet-content">
-        <div class="sheet-drag-handle"></div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <h2 id="sheetMachineCode" style="font-size: 20px; font-weight: 900; color: var(--text-primary);">BCR007</h2>
-            <p id="sheetMachineName" style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Cortadeira Rebobinadeira 07</p>
+  <!-- Dashboard Main Grid -->
+  <main class="dashboard-container">
+
+    <!-- ROW 1: Transferência & Aparas -->
+    <div class="row-top">
+      
+      <!-- Card: TRANSFERÊNCIA -->
+      <section class="dash-card">
+        <div class="card-title">TRANSFERÊNCIA</div>
+        
+        <div class="transfer-metric-item">
+          <div class="transfer-label-group">
+            <div class="metric-name">Pesado Hoje</div>
+            <div class="metric-sub">Total diário</div>
           </div>
-          <span id="sheetStatusBadge" class="status-badge status-setup">SETUP</span>
+          <strong id="valPesadoHoje">31.387</strong>
         </div>
 
-        <div style="background: var(--badge-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; margin-top: 12px;">
-          <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">ORDEM DE PRODUÇÃO ATIVA</div>
-          <div id="sheetOP" style="font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">OP-45102 — Stand-up Pouch</div>
-          <div id="sheetOperator" style="font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-top: 2px;">Operador: Marcos Vinícius • 220 m/min</div>
+        <div class="transfer-metric-item">
+          <div class="transfer-label-group">
+            <div class="metric-name">Transferência Mensal</div>
+            <div class="metric-sub">Acumulado do mês</div>
+          </div>
+          <strong id="valTransfMes">601.372</strong>
+        </div>
+      </section>
+
+      <!-- Card: APARAS — % SOBRE A PRODUÇÃO -->
+      <section class="dash-card">
+        <div class="card-header-flex">
+          <div class="card-title" style="margin-bottom: 0;">APARAS — % SOBRE A PRODUÇÃO</div>
+          <span class="target-pill-small">META: 3,0%</span>
         </div>
 
-        <div class="kpi-2x2-grid">
-          <div class="kpi-tile-box">
-            <span>METROS HOJE</span>
-            <strong id="sheetTodayMeters" style="color: var(--metric-today);">2.719 m</strong>
-          </div>
-          <div class="kpi-tile-box">
-            <span>METROS MÊS</span>
-            <strong id="sheetMonthMeters">110.151 m</strong>
-          </div>
-          <div class="kpi-tile-box">
-            <span>% APARAS MÊS</span>
-            <strong id="sheetScrapMonth" style="color: var(--remaining-color);">16,32%</strong>
-          </div>
-          <div class="kpi-tile-box">
-            <span>EFICIÊNCIA OEE</span>
-            <strong id="sheetOEE" style="color: var(--metric-speed);">64,1%</strong>
-          </div>
-        </div>
+        <table class="clean-table">
+          <thead>
+            <tr>
+              <th>MÁQUINA</th>
+              <th>1º TURNO (AGORA)</th>
+              <th>MÊS</th>
+            </tr>
+          </thead>
+          <tbody id="aparasTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </section>
 
-        <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.6px; color: var(--text-muted); margin: 12px 0 6px 0;">DESVIOS DE APARAS (MÊS)</div>
-        <div id="sheetReasons"></div>
-
-        <button class="btn-full" onclick="closeSheet('machineSheet')">Fechar Detalhes</button>
-      </div>
     </div>
 
-  </div>
+    <!-- ROW 2: Acompanhamento Liderança & Corte/Rebobinamento -->
+    <div class="row-middle">
+
+      <!-- Card: ACOMPANHAMENTO LIDERANÇA -->
+      <section class="dash-card">
+        <div class="card-title">ACOMPANHAMENTO LIDERANÇA</div>
+
+        <table class="lead-table">
+          <thead>
+            <tr>
+              <th>MÁQUINA</th>
+              <th>METROS NO TURNO</th>
+              <th>METROS HOJE</th>
+              <th>METROS NO MÊS</th>
+            </tr>
+          </thead>
+          <tbody id="leadershipTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Card: CORTE & REBOBINAMENTO -->
+      <section class="dash-card">
+        <div class="corte-header-center">
+          <h2>CORTE & REBOBINAMENTO</h2>
+          <div class="corte-target-pill">
+            Atual: <strong id="corteAtualVal">14.631.933</strong> &nbsp;/&nbsp; Meta: <strong>27.500.000</strong>
+          </div>
+        </div>
+
+        <!-- Donut Chart -->
+        <div class="donut-gauge-box">
+          <svg viewBox="0 0 100 100">
+            <!-- Track Circle -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--divider)" stroke-width="12" />
+            <!-- Remaining (Red) Arc: 46.8% -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--remaining-color)" stroke-width="12"
+                    stroke-dasharray="251.2" stroke-dashoffset="-133.6" stroke-linecap="round" />
+            <!-- Concluded (Green) Arc: 53.2% -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--concluded-color)" stroke-width="12"
+                    stroke-dasharray="251.2" stroke-dashoffset="117.6" stroke-linecap="round" />
+          </svg>
+          <div class="donut-center-content">
+            <span>Concluído</span>
+            <strong>53,2%</strong>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="donut-legend-row">
+          <div class="leg-item">
+            <span class="leg-tag remaining"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Restante</span>
+            <strong>46,8%</strong>
+          </div>
+          <div class="leg-item">
+            <span class="leg-tag concluded"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Feito</span>
+            <strong>53,2%</strong>
+          </div>
+        </div>
+
+        <!-- Sector Rhythm Trend Line Chart -->
+        <div class="sector-rhythm-section">
+          <div class="section-mini-title">% DO RITMO DO SETOR — 1º TURNO</div>
+          <div class="svg-chart-box" id="sectorChartBox">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ROW 3: % DO RITMO POR MÁQUINA — 1º TURNO -->
+    <div class="row-bottom">
+      <section class="dash-card">
+        <div class="card-header-flex">
+          <div class="card-title" style="margin-bottom: 0;">% DO RITMO POR MÁQUINA — 1º TURNO</div>
+          <span class="target-pill-small"><span style="color: #10B981; font-weight: 900;">---</span> LINHA PONTILHADA: META 100%</span>
+        </div>
+
+        <div class="machines-chart-grid" id="machinesChartGrid">
+          <!-- 6 machine rhythm charts rendered via JS -->
+        </div>
+      </section>
+    </div>
+
+  </main>
 
   <script>
+    /* ==========================================================================
+       DATA STRUCTURES & INDUSTRIAL PRODUCTION VALUES (EXACT REFERENCE DATA)
+       ========================================================================== */
+
     const machinesData = [
-      { code: 'BCR006', name: 'Cortadeira Rebobinadeira 06', status: 'running', operator: 'Antônio Ferreira', speed: 380, shiftMeters: 0, todayMeters: 3461, monthMeters: 111958, scrapMonth: 4.52, oee: 82.4, op: 'OP-45091 — Filme Shrink', reasons: [{name:'Setup', pct:42, kg:85},{name:'Refile', pct:38.5, kg:78}] },
-      { code: 'BCR007', name: 'Cortadeira Rebobinadeira 07', status: 'setup', operator: 'Marcos Vinícius', speed: 220, shiftMeters: 0, todayMeters: 2719, monthMeters: 110151, scrapMonth: 16.32, oee: 64.1, op: 'OP-45102 — Stand-up Pouch', reasons: [{name:'Tensão e Rugas', pct:55, kg:340},{name:'Desalinhamento', pct:29, kg:180}] },
-      { code: 'BCR012', name: 'Cortadeira Rebobinadeira 12', status: 'running', operator: 'Rafael Santos', speed: 450, shiftMeters: 0, todayMeters: 7163, monthMeters: 154673, scrapMonth: 5.08, oee: 89.2, op: 'OP-45118 — Pão de Forma', reasons: [{name:'Refile Lateral', pct:60, kg:110}] },
-      { code: 'BCR014', name: 'Cortadeira Rebobinadeira 14', status: 'running', operator: 'Lucas Almeida', speed: 420, shiftMeters: 0, todayMeters: 6907, monthMeters: 229759, scrapMonth: 5.59, oee: 91.5, op: 'OP-45125 — Filme Barreira', reasons: [{name:'Refile Lateral', pct:65, kg:145}] },
-      { code: 'BCR015', name: 'Cortadeira Rebobinadeira 15', status: 'running', operator: 'Thiago Oliveira', speed: 490, shiftMeters: 0, todayMeters: 13113, monthMeters: 375610, scrapMonth: 7.05, oee: 95.8, op: 'OP-45130 — Filme Higiênico', reasons: [{name:'Refile Alta Velocidade', pct:70, kg:210}] },
-      { code: 'BCR016', name: 'Cortadeira Rebobinadeira 16', status: 'running', operator: 'Rodrigo Gomes', speed: 360, shiftMeters: 0, todayMeters: 4786, monthMeters: 207305, scrapMonth: 9.05, oee: 84.0, op: 'OP-45142 — Embalagem Pet', reasons: [{name:'Fotocélula', pct:52, kg:130}] }
+      {
+        code: 'BCR006',
+        scrapShift: 5.96,
+        scrapMonth: 5.26,
+        shiftMeters: 36135,
+        shiftTarget: 60000,
+        expectedRitmo: 49927,
+        todayMeters: 36135,
+        monthMeters: 1853019,
+        rhythmPct: 71,
+        // Rhythm curve through shift points (06h, 08h, 10h, 12h, 14h)
+        rhythmPoints: [52, 74, 69, 73, 71]
+      },
+      {
+        code: 'BCR007',
+        scrapShift: 6.48,
+        scrapMonth: 7.27,
+        shiftMeters: 32713,
+        shiftTarget: 48800,
+        expectedRitmo: 48928,
+        todayMeters: 32713,
+        monthMeters: 2318155,
+        rhythmPct: 69,
+        rhythmPoints: [58, 62, 59, 66, 69]
+      },
+      {
+        code: 'BCR012',
+        scrapShift: 5.82,
+        scrapMonth: 3.80,
+        shiftMeters: 56813,
+        shiftTarget: 69500,
+        expectedRitmo: 64969,
+        todayMeters: 56813,
+        monthMeters: 2187627,
+        rhythmPct: 84,
+        rhythmPoints: [60, 88, 86, 83, 84]
+      },
+      {
+        code: 'BCR014',
+        scrapShift: 10.07,
+        scrapMonth: 6.30,
+        shiftMeters: 60759,
+        shiftTarget: 73800,
+        expectedRitmo: 71744,
+        todayMeters: 60759,
+        monthMeters: 2510002,
+        rhythmPct: 82,
+        rhythmPoints: [72, 70, 78, 81, 82]
+      },
+      {
+        code: 'BCR015',
+        scrapShift: 3.08,
+        scrapMonth: 5.68,
+        shiftMeters: 60371,
+        shiftTarget: 94000,
+        expectedRitmo: 96942,
+        todayMeters: 60371,
+        monthMeters: 3498104,
+        rhythmPct: 65,
+        rhythmPoints: [55, 63, 61, 64, 65]
+      },
+      {
+        code: 'BCR016',
+        scrapShift: 7.16,
+        scrapMonth: 6.69,
+        shiftMeters: 37828,
+        shiftTarget: 63800,
+        expectedRitmo: 61777,
+        todayMeters: 37828,
+        monthMeters: 2265026,
+        rhythmPct: 60,
+        rhythmPoints: [45, 60, 58, 62, 60]
+      }
     ];
 
-    let currentTab = 0;
-    let machineFilter = 'all';
-    let corteTotal = 1189400;
+    const sectorTotals = {
+      code: 'SETOR',
+      scrapShift: 6.37,
+      scrapMonth: 5.76,
+      shiftMeters: 284619,
+      shiftTarget: 409000,
+      expectedRitmo: 394858,
+      todayMeters: 284619,
+      monthMeters: 14631933,
+      rhythmPct: 72,
+      rhythmPoints: [58, 70, 68, 72, 72]
+    };
 
-    function renderScreen() {
-      const body = document.getElementById('appBody');
+    /* ==========================================================================
+       RENDER FUNCTIONS
+       ========================================================================== */
 
-      if (currentTab === 0) {
-        body.innerHTML = `
-          <!-- Transfer Card -->
-          <div class="kpi-card">
-            <div class="kpi-card-header">
-              <h3>TRANSFERÊNCIA & PESAGEM</h3>
-              <span style="font-size:9px; font-weight:900; color:var(--text-secondary); background:var(--badge-bg); border:1px solid var(--card-border); padding:3px 8px; border-radius:4px;">UNIDADE: KG</span>
-            </div>
-            <div class="metric-row-flex">
-              <div>
-                <div style="font-size:16px; font-weight:900; color:var(--text-primary);">Pesado Hoje</div>
-                <div style="font-size:11px; color:var(--concluded-color); font-weight:900;">+8,4% diário</div>
-              </div>
-              <strong>10.582</strong>
-            </div>
-            <div class="progress-bar-thin"><div class="progress-bar-fill" style="width:88%;"></div></div>
-            <div class="metric-row-flex">
-              <div>
-                <div style="font-size:16px; font-weight:900; color:var(--text-primary);">Transferência Mensal</div>
-                <div style="font-size:11px; color:var(--concluded-color); font-weight:900;">+12,1% vs meta</div>
-              </div>
-              <strong>67.098</strong>
-            </div>
-            <div class="progress-bar-thin"><div class="progress-bar-fill" style="width:76%;"></div></div>
-          </div>
-
-          <!-- Donut Card -->
-          <div class="kpi-card donut-mobile-box">
-            <div class="kpi-card-header" style="width:100%;">
-              <h3>CORTE & REBOBINAMENTO</h3>
-              <span style="font-size:9px; font-weight:900; color:var(--brand-secondary); background:var(--badge-bg); border:1px solid var(--card-border); padding:3px 8px; border-radius:4px;">META DO MÊS</span>
-            </div>
-            <div class="donut-target-chip">
-              Atual: <strong id="corteDisplayVal">${corteTotal.toLocaleString('pt-BR')}</strong> &nbsp;/&nbsp; Meta: <strong>27.500.000 m</strong>
-            </div>
-            <div class="donut-svg-wrapper">
-              <svg viewBox="0 0 100 100">
-                <!-- Outer Telemetry Ring -->
-                <circle cx="50" cy="50" r="46" fill="transparent" stroke="var(--divider-color)" stroke-width="1.2" stroke-dasharray="2 3" />
-                <!-- Base Track -->
-                <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--chart-track)" stroke-width="11" />
-                <!-- Remaining Arc -->
-                <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--remaining-color)" stroke-width="11" stroke-dasharray="235 245" stroke-dashoffset="-10.5" stroke-linecap="round" />
-                <!-- Concluded Arc -->
-                <circle cx="50" cy="50" r="39" fill="transparent" stroke="var(--concluded-color)" stroke-width="11" stroke-dasharray="10.5 245" stroke-dashoffset="0" stroke-linecap="round" />
-              </svg>
-              <div class="donut-val-center">
-                <span>PROGRESSO</span>
-                <strong>4,3%</strong>
-                <p>DA META MENSAL</p>
-              </div>
-            </div>
-            
-            <!-- Dual Solid Legend Tiles -->
-            <div class="donut-legend-mobile">
-              <div class="legend-tile remaining">
-                <div class="leg-label"><span class="leg-dot" style="background:var(--remaining-color);"></span> RESTANTE</div>
-                <span class="leg-val">95,7%</span>
-              </div>
-              <div class="legend-tile concluded">
-                <div class="leg-label"><span class="leg-dot" style="background:var(--concluded-color);"></span> FEITO</div>
-                <span class="leg-val">4,3%</span>
-              </div>
-            </div>
-
-            <!-- Cadence Footer -->
-            <div class="cadence-footer-row">
-              <div style="text-align:left;">
-                <div style="font-size:9px; font-weight:800; color:var(--text-muted); letter-spacing:0.5px;">CADÊNCIA DIÁRIA NECESSÁRIA</div>
-                <div style="font-size:15px; font-weight:900; color:var(--text-primary); margin-top:2px; font-family:'Outfit',sans-serif;">974.490 m/dia</div>
-              </div>
-              <div style="background:var(--badge-bg); border:1px solid var(--card-border); padding:5px 10px; border-radius:6px; font-size:11px; font-weight:900; color:var(--metric-speed);">
-                27 dias restantes
-              </div>
-            </div>
-          </div>
-
-          <!-- Sector Summary -->
-          <div class="kpi-card">
-            <div class="kpi-card-header">
-              <h3>APARAS DO SETOR (ACUMULADO)</h3>
-              <span class="scrap-pill-soft alert" style="font-size:10px; font-weight:900; padding:2px 8px;">META: 3,0%</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="font-family:'Outfit',sans-serif; font-size:28px; font-weight:900; color:var(--remaining-color);">7,16%</div>
-              <div style="text-align:right; font-size:11px; color:var(--text-secondary); font-weight:600;">
-                <div>1º Turno: <span style="color:var(--concluded-color); font-weight:900;">0,00%</span> (Dentro)</div>
-                <div>Dia: <span style="color:var(--concluded-color); font-weight:900;">0,00%</span> (Dentro)</div>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; align-items:center; margin: 16px 0 10px 0;">
-            <span style="font-size:12px; font-weight:900; letter-spacing:0.8px; color:var(--brand-primary);">ACOMPANHAMENTO DE MÁQUINAS</span>
-            <span style="font-size:12px; color:var(--brand-secondary); font-weight:900; cursor:pointer;" onclick="selectTabFromSpeedDial(1)">Ver Todas (6) →</span>
-          </div>
-          <div id="quickMachinesList"></div>
-        `;
-        renderMachineCards('quickMachinesList', 3);
-      } else if (currentTab === 1) {
-        body.innerHTML = `
-          <div class="filter-bar" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:10px;">
-            <button class="speed-dial-label ${machineFilter==='all'?'active':''}" style="cursor:pointer;" onclick="setFilter('all')">Todas (6)</button>
-            <button class="speed-dial-label ${machineFilter==='running'?'active':''}" style="cursor:pointer;" onclick="setFilter('running')">Em Operação (5)</button>
-            <button class="speed-dial-label ${machineFilter==='setup'?'active':''}" style="cursor:pointer;" onclick="setFilter('setup')">Em Setup (1)</button>
-            <button class="speed-dial-label ${machineFilter==='alert'?'active':''}" style="cursor:pointer;" onclick="setFilter('alert')">Aparas > 3% (4)</button>
-          </div>
-          <div id="allMachinesList"></div>
-        `;
-        renderMachineCards('allMachinesList', 6);
-      } else if (currentTab === 2) {
-        body.innerHTML = `
-          <div class="kpi-card">
-            <div class="kpi-card-header">
-              <h3>APARAS — % SOBRE PRODUÇÃO</h3>
-              <span class="scrap-pill-soft alert" style="font-size:10px; font-weight:900;">META: 3,0%</span>
-            </div>
-            <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px; font-weight:700;">Dia industrial das 06h às 06h</p>
-            <div id="scrapDetailedList"></div>
-          </div>
-        `;
-        renderMachineCards('scrapDetailedList', 6);
-      } else {
-        body.innerHTML = `
-          <div style="font-size:12px; font-weight:900; letter-spacing:0.8px; color:var(--brand-primary); margin-bottom:12px;">OCORRÊNCIAS & ALERTAS INDUSTRIAIS</div>
-          <div class="kpi-card" style="border-color: var(--remaining-border); background: var(--remaining-bg);">
-            <div style="color:var(--remaining-label); font-size:13px; font-weight:900;">BCR007: Aparas Críticas em 16,32%</div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px; font-weight:600;">Meta operacional: 3,0%. Ajustar tensão e alinhamento de guilhotina.</div>
-          </div>
-          <div class="kpi-card" style="border-color: var(--concluded-border); background: var(--concluded-bg);">
-            <div style="color:var(--concluded-label); font-size:13px; font-weight:900;">BCR015: Líder de Produtividade</div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px; font-weight:600;">375.610 m acumulados no mês e 13.113 m produzidos hoje.</div>
-          </div>
-        `;
-      }
+    function formatNumber(num) {
+      return num.toLocaleString('pt-BR');
     }
 
-    function renderMachineCards(containerId, count) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      container.innerHTML = '';
+    function formatPct(val) {
+      return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    }
 
-      let list = machinesData;
-      if (machineFilter === 'running') list = list.filter(m => m.status === 'running');
-      if (machineFilter === 'setup') list = list.filter(m => m.status === 'setup');
-      if (machineFilter === 'alert') list = list.filter(m => m.scrapMonth > 3.0);
+    // 1. Render Aparas Table
+    function renderAparasTable() {
+      const tbody = document.getElementById('aparasTableBody');
+      let html = '';
 
-      list.slice(0, count).forEach((m, idx) => {
-        const isAlert = m.scrapMonth > 3.0;
-        const pillClass = isAlert ? 'alert' : 'ok';
-        const isTop = m.code === 'BCR015';
-
-        const div = document.createElement('div');
-        div.className = 'machine-card-item';
-        div.onclick = () => openMachineSheet(idx);
-        div.innerHTML = `
-          <div class="machine-top-bar">
-            <div class="machine-title-left">
-              <span class="machine-code-text">${m.code}</span>
-              <span class="status-badge ${m.status==='running'?'status-running':'status-setup'}">${m.status==='running'?'EM OPERAÇÃO':'SETUP'}</span>
-              ${isTop ? '<span style="font-size:8px; background:var(--badge-bg); border:1px solid var(--card-border); color:var(--brand-secondary); padding:2px 6px; border-radius:4px; font-weight:900;">LÍDER</span>' : ''}
-            </div>
-            <div class="scrap-pill-soft ${pillClass}">
-              <span>Aparas: <strong>${m.scrapMonth.toLocaleString('pt-BR', {minimumFractionDigits:2})}%</strong></span>
-            </div>
-          </div>
-          <div class="machine-op-text">${m.op}</div>
-          <div class="machine-metrics-grid">
-            <div class="m-stat-box">
-              <span>METROS HOJE</span>
-              <strong style="color:var(--metric-today);">${m.todayMeters.toLocaleString('pt-BR')} m</strong>
-            </div>
-            <div class="m-stat-box">
-              <span>ACUMULADO MÊS</span>
-              <strong>${m.monthMeters.toLocaleString('pt-BR')} m</strong>
-            </div>
-            <div class="m-stat-box" style="text-align:right;">
-              <span>VELOCIDADE / OEE</span>
-              <strong style="color:var(--metric-speed);">${m.speed} m/min • ${m.oee}%</strong>
-            </div>
-          </div>
+      machinesData.forEach(m => {
+        const clsShift = m.scrapShift > 6.0 ? 'above' : (m.scrapShift > 3.0 ? 'normal' : 'ok');
+        const clsMonth = m.scrapMonth > 6.0 ? 'above' : (m.scrapMonth > 3.0 ? 'normal' : 'ok');
+        html += `
+          <tr>
+            <td>${m.code}</td>
+            <td><span class="pct-val ${clsShift}">${formatPct(m.scrapShift)}</span></td>
+            <td><span class="pct-val ${clsMonth}">${formatPct(m.scrapMonth)}</span></td>
+          </tr>
         `;
-        container.appendChild(div);
       });
+
+      // Total Setor Row
+      const setShiftCls = sectorTotals.scrapShift > 3.0 ? 'above' : 'ok';
+      const setMonthCls = sectorTotals.scrapMonth > 3.0 ? 'above' : 'ok';
+      html += `
+        <tr class="total-row">
+          <td>${sectorTotals.code}</td>
+          <td><span class="pct-val ${setShiftCls}">${formatPct(sectorTotals.scrapShift)}</span></td>
+          <td><span class="pct-val ${setMonthCls}">${formatPct(sectorTotals.scrapMonth)}</span></td>
+        </tr>
+      `;
+
+      tbody.innerHTML = html;
     }
 
-    function toggleSpeedDial() {
-      closeShiftDropdown();
-      const container = document.getElementById('speedDialContainer');
-      const isOpen = container.classList.toggle('open');
-      document.getElementById('dismissLayer').classList.toggle('active', isOpen);
-    }
+    // 2. Render Leadership Table (No OEE, Clean Metro Turno / Hoje / Mês / Meta)
+    function renderLeadershipTable() {
+      const tbody = document.getElementById('leadershipTableBody');
+      let html = '';
 
-    function closeSpeedDial() {
-      document.getElementById('speedDialContainer').classList.remove('open');
-      checkDismissLayer();
-    }
-
-    function toggleShiftDropdown() {
-      closeSpeedDial();
-      const menu = document.getElementById('shiftDropdownMenu');
-      const chip = document.getElementById('shiftChipBtn');
-      const isOpen = menu.classList.toggle('active');
-      chip.classList.toggle('open', isOpen);
-      document.getElementById('dismissLayer').classList.toggle('active', isOpen);
-    }
-
-    function closeShiftDropdown() {
-      const menu = document.getElementById('shiftDropdownMenu');
-      const chip = document.getElementById('shiftChipBtn');
-      if (menu) menu.classList.remove('active');
-      if (chip) chip.classList.remove('open');
-      checkDismissLayer();
-    }
-
-    function checkDismissLayer() {
-      const isSpeedOpen = document.getElementById('speedDialContainer').classList.contains('open');
-      const isShiftOpen = document.getElementById('shiftDropdownMenu').classList.contains('active');
-      document.getElementById('dismissLayer').classList.toggle('active', isSpeedOpen || isShiftOpen);
-    }
-
-    function closeAllOverlays() {
-      closeSpeedDial();
-      closeShiftDropdown();
-      document.getElementById('dismissLayer').classList.remove('active');
-    }
-
-    function selectShift(title, subtitle, btn) {
-      document.getElementById('shiftTitleDisplay').innerText = title;
-      document.querySelectorAll('.shift-item-btn').forEach(b => {
-        b.classList.remove('selected');
-        b.querySelector('i').className = 'fa-regular fa-circle';
+      machinesData.forEach(m => {
+        html += `
+          <tr>
+            <td>
+              <div class="m-code">${m.code}</div>
+            </td>
+            <td>
+              <div class="m-turno-box">
+                <span class="m-turno-val">${formatNumber(m.shiftMeters)}</span>
+                <span class="m-turno-sub">desde 06:00 do ritmo · esperado ${formatNumber(m.expectedRitmo)} · meta ${formatNumber(m.shiftTarget)}</span>
+              </div>
+            </td>
+            <td>
+              <span class="m-hoje-val">${formatNumber(m.todayMeters)}</span>
+            </td>
+            <td>
+              <span class="m-mes-val">${formatNumber(m.monthMeters)}</span>
+            </td>
+          </tr>
+        `;
       });
-      btn.classList.add('selected');
-      btn.querySelector('i').className = 'fa-solid fa-circle-check';
-      closeAllOverlays();
+
+      // Setor Totals Row
+      html += `
+        <tr class="total-row">
+          <td>
+            <div class="m-code" style="font-weight: 900;">${sectorTotals.code}</div>
+          </td>
+          <td>
+            <div class="m-turno-box">
+              <span class="m-turno-val" style="font-weight: 900;">${formatNumber(sectorTotals.shiftMeters)}</span>
+              <span class="m-turno-sub">desde 06:00 do ritmo · esperado ${formatNumber(sectorTotals.expectedRitmo)} · meta ${formatNumber(sectorTotals.shiftTarget)}</span>
+            </div>
+          </td>
+          <td>
+            <span class="m-hoje-val" style="font-weight: 900;">${formatNumber(sectorTotals.todayMeters)}</span>
+          </td>
+          <td>
+            <span class="m-mes-val" style="font-weight: 900;">${formatNumber(sectorTotals.monthMeters)}</span>
+          </td>
+        </tr>
+      `;
+
+      tbody.innerHTML = html;
     }
 
-    function selectTabFromSpeedDial(index) {
-      currentTab = index;
-      closeAllOverlays();
+    // 3. Render Sector Rhythm SVG Line Chart
+    function renderSectorChart() {
+      const box = document.getElementById('sectorChartBox');
+      const pts = sectorTotals.rhythmPoints; // [58, 70, 68, 72, 72]
       
-      // Update active state
-      document.querySelectorAll('.speed-dial-item').forEach(el => el.classList.remove('active'));
-      if (index === 0) document.getElementById('itemGeneral').classList.add('active');
-      if (index === 1) document.getElementById('itemMachines').classList.add('active');
-      if (index === 2) document.getElementById('itemScrap').classList.add('active');
-      if (index === 3) document.getElementById('itemAlerts').classList.add('active');
+      // Chart Dimensions: W=380, H=100
+      // Y range: 0% to 150% (H=100) -> 0% is y=90, 100% is y=35, 150% is y=8
+      const w = 380;
+      const h = 100;
+      const paddingLeft = 32;
+      const paddingRight = 15;
+      const usableW = w - paddingLeft - paddingRight;
 
-      renderScreen();
-    }
+      // Map percentages to Y coordinates
+      function getY(pct) {
+        // 0% -> 85, 100% -> 35, 150% -> 10
+        const minPct = 0;
+        const maxPct = 150;
+        return 88 - ((pct - minPct) / (maxPct - minPct)) * 78;
+      }
 
-    function setFilter(f) {
-      machineFilter = f;
-      renderScreen();
-    }
+      const y100 = getY(100);
+      const y50 = getY(50);
 
-    function openMachineSheet(idx) {
-      closeAllOverlays();
-      const m = machinesData[idx];
-      document.getElementById('sheetMachineCode').innerText = m.code;
-      document.getElementById('sheetMachineName').innerText = m.name;
-      document.getElementById('sheetOP').innerText = m.op;
-      document.getElementById('sheetOperator').innerText = `Operador: ${m.operator} • ${m.speed} m/min`;
-      document.getElementById('sheetTodayMeters').innerText = m.todayMeters.toLocaleString('pt-BR') + ' m';
-      document.getElementById('sheetMonthMeters').innerText = m.monthMeters.toLocaleString('pt-BR') + ' m';
-      document.getElementById('sheetScrapMonth').innerText = m.scrapMonth.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '%';
-      document.getElementById('sheetOEE').innerText = m.oee + '%';
-
-      const reasonsBox = document.getElementById('sheetReasons');
-      reasonsBox.innerHTML = '';
-      m.reasons.forEach(r => {
-        const row = document.createElement('div');
-        row.style.marginBottom = '6px';
-        row.innerHTML = `
-          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-primary);">
-            <span>${r.name}</span>
-            <span style="color:var(--text-secondary);">${r.pct}% (${r.kg} kg)</span>
-          </div>
-          <div class="progress-bar-thin" style="margin:3px 0 0 0; height:4px;">
-            <div class="progress-bar-fill" style="background:var(--remaining-color); width:${r.pct}%;"></div>
-          </div>
-        `;
-        reasonsBox.appendChild(row);
+      // Generate Points
+      const coords = pts.map((p, i) => {
+        const x = paddingLeft + (i / (pts.length - 1)) * usableW;
+        const y = getY(p);
+        return { x, y, val: p };
       });
 
-      document.getElementById('machineSheet').classList.add('active');
+      const pathData = coords.map((c, i) => (i === 0 ? `M ${c.x} ${c.y}` : `L ${c.x} ${c.y}`)).join(' ');
+      const areaData = `${pathData} L ${coords[coords.length - 1].x} 90 L ${coords[0].x} 90 Z`;
+
+      const svg = `
+        <svg viewBox="0 0 ${w} ${h}">
+          <defs>
+            <linearGradient id="sectorGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0284C7" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#0284C7" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          <!-- Horizontal Grid Lines -->
+          <line x1="${paddingLeft}" y1="${y50}" x2="${w - paddingRight}" y2="${y50}" stroke="var(--divider)" stroke-width="0.8" />
+          <text x="${paddingLeft - 4}" y="${y50 + 3}" fill="var(--text-muted)" font-size="8" text-anchor="end" font-weight="600">50%</text>
+
+          <!-- 100% Goal Dashed Line -->
+          <line x1="${paddingLeft}" y1="${y100}" x2="${w - paddingRight}" y2="${y100}" stroke="var(--concluded-color)" stroke-width="1.2" stroke-dasharray="3 3" />
+          <text x="${paddingLeft - 4}" y="${y100 + 3}" fill="var(--concluded-color)" font-size="8" text-anchor="end" font-weight="800">100%</text>
+
+          <!-- Baseline -->
+          <line x1="${paddingLeft}" y1="90" x2="${w - paddingRight}" y2="90" stroke="var(--divider)" stroke-width="0.8" />
+
+          <!-- Gradient Fill Area -->
+          <path d="${areaData}" fill="url(#sectorGrad)" />
+
+          <!-- Line -->
+          <path d="${pathData}" fill="none" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Data Points -->
+          ${coords.map(c => `
+            <circle cx="${c.x}" cy="${c.y}" r="3" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.5" />
+          `).join('')}
+
+          <!-- X Axis Labels -->
+          <text x="${paddingLeft}" y="99" fill="var(--text-muted)" font-size="8" text-anchor="start" font-weight="600">06h</text>
+          <text x="${paddingLeft + usableW * 0.25}" y="99" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-weight="600">08h</text>
+          <text x="${paddingLeft + usableW * 0.5}" y="99" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-weight="600">10h</text>
+          <text x="${paddingLeft + usableW * 0.75}" y="99" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-weight="600">12h</text>
+          <text x="${w - paddingRight}" y="99" fill="var(--text-muted)" font-size="8" text-anchor="end" font-weight="600">14h</text>
+        </svg>
+      `;
+
+      box.innerHTML = svg;
     }
 
-    function closeSheet(id) { document.getElementById(id).classList.remove('active'); }
+    // 4. Render 6 Rhythm Charts for Each Machine
+    function renderMachineRhythmCharts() {
+      const grid = document.getElementById('machinesChartGrid');
+      let html = '';
+
+      machinesData.forEach((m, idx) => {
+        const isGood = m.rhythmPct >= 80;
+        const badgeClass = isGood ? 'green' : 'red';
+        const chartId = `mChart_${idx}`;
+
+        html += `
+          <div class="mini-chart-card">
+            <div class="mini-chart-header">
+              <span class="mini-chart-code">${m.code}</span>
+              <span class="mini-chart-pct ${badgeClass}">${m.rhythmPct}%</span>
+            </div>
+            <div class="svg-chart-box" id="${chartId}"></div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html;
+
+      // Now generate SVGs for each card
+      machinesData.forEach((m, idx) => {
+        const container = document.getElementById(`mChart_${idx}`);
+        if (!container) return;
+
+        const w = 300;
+        const h = 110;
+        const paddingLeft = 30;
+        const paddingRight = 10;
+        const usableW = w - paddingLeft - paddingRight;
+
+        function getY(pct) {
+          const minPct = 0;
+          const maxPct = 150;
+          return 92 - ((pct - minPct) / (maxPct - minPct)) * 80;
+        }
+
+        const y150 = getY(150);
+        const y100 = getY(100);
+        const y50 = getY(50);
+
+        const coords = m.rhythmPoints.map((p, i) => {
+          const x = paddingLeft + (i / (m.rhythmPoints.length - 1)) * usableW;
+          const y = getY(p);
+          return { x, y, val: p };
+        });
+
+        const pathData = coords.map((c, i) => (i === 0 ? `M ${c.x} ${c.y}` : `L ${c.x} ${c.y}`)).join(' ');
+        const areaData = `${pathData} L ${coords[coords.length - 1].x} 94 L ${coords[0].x} 94 Z`;
+
+        const svg = `
+          <svg viewBox="0 0 ${w} ${h}">
+            <defs>
+              <linearGradient id="grad_${idx}" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0284C7" stop-opacity="0.22" />
+                <stop offset="100%" stop-color="#0284C7" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+
+            <!-- Y-Axis Grid Lines and Labels -->
+            <line x1="${paddingLeft}" y1="${y150}" x2="${w - paddingRight}" y2="${y150}" stroke="var(--divider)" stroke-width="0.8" />
+            <text x="${paddingLeft - 4}" y="${y150 + 3}" fill="var(--text-muted)" font-size="8" text-anchor="end" font-weight="600">150%</text>
+
+            <!-- 100% Goal Dashed Line -->
+            <line x1="${paddingLeft}" y1="${y100}" x2="${w - paddingRight}" y2="${y100}" stroke="var(--concluded-color)" stroke-width="1.2" stroke-dasharray="3 3" />
+            <text x="${paddingLeft - 4}" y="${y100 + 3}" fill="var(--concluded-color)" font-size="8" text-anchor="end" font-weight="800">100%</text>
+
+            <line x1="${paddingLeft}" y1="${y50}" x2="${w - paddingRight}" y2="${y50}" stroke="var(--divider)" stroke-width="0.8" />
+            <text x="${paddingLeft - 4}" y="${y50 + 3}" fill="var(--text-muted)" font-size="8" text-anchor="end" font-weight="600">50%</text>
+
+            <!-- Bottom Baseline -->
+            <line x1="${paddingLeft}" y1="94" x2="${w - paddingRight}" y2="94" stroke="var(--divider)" stroke-width="0.8" />
+
+            <!-- Gradient Area -->
+            <path d="${areaData}" fill="url(#grad_${idx})" />
+
+            <!-- Main Curve -->
+            <path d="${pathData}" fill="none" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- Points -->
+            ${coords.map(c => `
+              <circle cx="${c.x}" cy="${c.y}" r="2.8" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.2" />
+            `).join('')}
+
+            <!-- X Axis Labels (06h, 10h, 14h) -->
+            <text x="${paddingLeft}" y="105" fill="var(--text-muted)" font-size="8" text-anchor="start" font-weight="600">06h</text>
+            <text x="${paddingLeft + usableW * 0.5}" y="105" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-weight="600">10h</text>
+            <text x="${w - paddingRight}" y="105" fill="var(--text-muted)" font-size="8" text-anchor="end" font-weight="600">14h</text>
+          </svg>
+        `;
+
+        container.innerHTML = svg;
+      });
+    }
+
+    /* ==========================================================================
+       INTERACTIVE CONTROLS (Theme, Shifts, TV Mode)
+       ========================================================================== */
 
     function toggleTheme() {
       const html = document.documentElement;
       const icon = document.getElementById('themeIcon');
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        html.classList.add('light');
-        icon.className = 'fa-solid fa-moon';
-        icon.style.color = '#0A1F44';
-      } else {
-        html.classList.remove('light');
-        html.classList.add('dark');
-        icon.className = 'fa-solid fa-sun';
-        icon.style.color = '#FCD34D';
+      const isDark = html.classList.toggle('dark');
+      html.classList.toggle('light', !isDark);
+
+      icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      icon.style.color = isDark ? '#FCD34D' : '';
+
+      // Re-render charts for appropriate line colors
+      renderSectorChart();
+      renderMachineRhythmCharts();
+    }
+
+    function toggleTVMode() {
+      document.body.classList.toggle('tv-mode');
+    }
+
+    function toggleShiftDropdown() {
+      document.getElementById('shiftDropdown').classList.toggle('show');
+    }
+
+    function changeShift(title, idx) {
+      document.getElementById('shiftBtnText').innerText = title;
+      document.querySelectorAll('.shift-option').forEach((el, i) => {
+        el.classList.toggle('selected', i === idx);
+      });
+      document.getElementById('shiftDropdown').classList.remove('show');
+    }
+
+    // Close dropdown on outside click
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('.shift-menu-wrapper')) {
+        document.getElementById('shiftDropdown').classList.remove('show');
       }
-      renderScreen();
+    });
+
+    /* ==========================================================================
+       INITIALIZATION
+       ========================================================================== */
+    function init() {
+      renderAparasTable();
+      renderLeadershipTable();
+      renderSectorChart();
+      renderMachineRhythmCharts();
+
+      // Gentle real-time production simulation (increments slightly every 4 seconds)
+      setInterval(() => {
+        const inc = Math.floor(Math.random() * 8) + 3;
+        sectorTotals.shiftMeters += inc;
+        sectorTotals.todayMeters += inc;
+        document.getElementById('corteAtualVal').innerText = formatNumber(14631933 + Math.floor(Math.random() * 150));
+      }, 4000);
     }
 
-    function updateTime() {
-      const now = new Date();
-      document.getElementById('phoneTime').innerText = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-    }
-
-    // Init
-    renderScreen();
-    updateTime();
-    setInterval(updateTime, 1000);
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
