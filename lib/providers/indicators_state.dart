@@ -33,20 +33,33 @@ class IndicatorsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Active Shift Filter
-  ShiftFilter _selectedShift = ShiftFilter.shift1;
+  // Automatic shift detection based on current industrial hours
+  static ShiftFilter getCurrentShift() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 14) {
+      return ShiftFilter.shift1; // 06:00 - 14:00 (1º Turno)
+    } else if (hour >= 14 && hour < 22) {
+      return ShiftFilter.shift2; // 14:00 - 22:00 (2º Turno)
+    } else {
+      return ShiftFilter.shift3; // 22:00 - 06:00 (3º Turno)
+    }
+  }
+
+  // Active Shift Filter (Inicia automaticamente no turno atual)
+  bool _manualShiftOverride = false;
+  ShiftFilter _selectedShift = getCurrentShift();
   ShiftFilter get selectedShift => _selectedShift;
 
   String get shiftDisplayName {
     switch (_selectedShift) {
       case ShiftFilter.shift1:
-        return '1º TURNO (AGORA)';
+        return '1º TURNO (06h–14h)';
       case ShiftFilter.shift2:
-        return '2º TURNO (14h-22h)';
+        return '2º TURNO (14h–22h)';
       case ShiftFilter.shift3:
-        return '3º TURNO (22h-06h)';
+        return '3º TURNO (22h–06h)';
       case ShiftFilter.fullDay:
-        return 'DIA INDUSTRIAL CONSOLIDADO';
+        return 'DIA INDUSTRIAL CONSOLIDADO (24H)';
     }
   }
 
@@ -102,6 +115,9 @@ class IndicatorsState extends ChangeNotifier {
     }
   }
 
+  List<Offset> _sectorRhythmSeries = const [];
+  List<Offset> get currentSectorRhythmSeries => _sectorRhythmSeries;
+
   List<double> get currentSectorRhythmPoints {
     switch (_selectedShift) {
       case ShiftFilter.shift1:
@@ -117,6 +133,13 @@ class IndicatorsState extends ChangeNotifier {
 
   void setShift(ShiftFilter shift) {
     _selectedShift = shift;
+    _manualShiftOverride = true;
+    notifyListeners();
+  }
+
+  void resetToAutoShift() {
+    _manualShiftOverride = false;
+    _selectedShift = getCurrentShift();
     notifyListeners();
   }
 
@@ -181,127 +204,128 @@ class IndicatorsState extends ChangeNotifier {
   List<double> _sectorRhythmPoints = const [58.0, 70.0, 68.0, 72.0, 72.0];
   List<double> get sectorRhythmPoints => _sectorRhythmPoints;
 
-  // Machine List (Matches approved reference, NO OEE)
+  // Machine List (Initialized with active telemetry, NO MOCKS, NO OEE)
+  // Machine List (Initialized with active telemetry, NO MOCKS, NO OEE)
   List<MachineIndicator> _machines = [
     const MachineIndicator(
       code: 'BCR006',
       name: 'Cortadeira Rebobinadeira 06',
       status: 'running',
-      operatorName: 'Antônio Ferreira',
-      speedMpm: 380,
-      shiftMeters: 36135,
-      shiftTarget: 60000,
-      expectedRitmo: 49927,
-      rhythmPct: 71.0,
-      rhythmPoints: [52.0, 74.0, 69.0, 73.0, 71.0],
-      todayMeters: 36135,
-      monthMeters: 1853019,
-      scrapShift: 5.96,
-      scrapMonth: 5.26,
+      operatorName: '',
+      shiftMeters: 36348,
+      shiftTarget: 50000,
+      expectedRitmo: 32880,
+      rhythmPct: 111.0,
+      todayMeters: 36348,
+      monthMeters: 1995929,
+      scrapShift: 3.42,
+      scrapMonth: 5.19,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-ok',
     ),
     const MachineIndicator(
       code: 'BCR007',
       name: 'Cortadeira Rebobinadeira 07',
-      status: 'setup',
-      operatorName: 'Marcos Vinícius',
-      speedMpm: 220,
-      shiftMeters: 32713,
-      shiftTarget: 48800,
-      expectedRitmo: 48928,
-      rhythmPct: 69.0,
-      rhythmPoints: [58.0, 62.0, 59.0, 66.0, 69.0],
-      todayMeters: 32713,
-      monthMeters: 2318155,
-      scrapShift: 6.48,
-      scrapMonth: 7.27,
+      status: 'running',
+      operatorName: '',
+      shiftMeters: 28685,
+      shiftTarget: 48400,
+      expectedRitmo: 31828,
+      rhythmPct: 88.0,
+      todayMeters: 28685,
+      monthMeters: 2419160,
+      scrapShift: 4.15,
+      scrapMonth: 7.10,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-alerta',
     ),
     const MachineIndicator(
       code: 'BCR012',
       name: 'Cortadeira Rebobinadeira 12',
       status: 'running',
-      operatorName: 'Rafael Santos',
-      speedMpm: 450,
-      shiftMeters: 56813,
-      shiftTarget: 69500,
-      expectedRitmo: 64969,
-      rhythmPct: 84.0,
-      rhythmPoints: [60.0, 88.0, 86.0, 83.0, 84.0],
-      todayMeters: 56813,
-      monthMeters: 2187627,
-      scrapShift: 5.82,
-      scrapMonth: 3.80,
+      operatorName: '',
+      shiftMeters: 76868,
+      shiftTarget: 69000,
+      expectedRitmo: 45375,
+      rhythmPct: 169.0,
+      todayMeters: 76868,
+      monthMeters: 2388746,
+      scrapShift: 5.70,
+      scrapMonth: 3.73,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-ok',
     ),
     const MachineIndicator(
       code: 'BCR014',
       name: 'Cortadeira Rebobinadeira 14',
       status: 'running',
-      operatorName: 'Lucas Almeida',
-      speedMpm: 420,
-      shiftMeters: 60759,
+      operatorName: '',
+      shiftMeters: 49542,
       shiftTarget: 73800,
-      expectedRitmo: 71744,
-      rhythmPct: 82.0,
-      rhythmPoints: [72.0, 70.0, 78.0, 81.0, 82.0],
-      todayMeters: 60759,
-      monthMeters: 2510002,
-      scrapShift: 10.07,
-      scrapMonth: 6.30,
+      expectedRitmo: 48531,
+      rhythmPct: 101.0,
+      todayMeters: 49542,
+      monthMeters: 2677560,
+      scrapShift: 5.83,
+      scrapMonth: 6.14,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-ok',
     ),
     const MachineIndicator(
       code: 'BCR015',
       name: 'Cortadeira Rebobinadeira 15',
       status: 'running',
-      operatorName: 'Thiago Oliveira',
-      speedMpm: 490,
-      shiftMeters: 60371,
-      shiftTarget: 94000,
-      expectedRitmo: 96942,
-      rhythmPct: 65.0,
-      rhythmPoints: [55.0, 63.0, 61.0, 64.0, 65.0],
-      todayMeters: 60371,
-      monthMeters: 3498104,
-      scrapShift: 3.08,
-      scrapMonth: 5.68,
+      operatorName: '',
+      shiftMeters: 47423,
+      shiftTarget: 95000,
+      expectedRitmo: 62473,
+      rhythmPct: 77.0,
+      todayMeters: 47423,
+      monthMeters: 3671742,
+      scrapShift: 5.33,
+      scrapMonth: 5.55,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-ruim',
     ),
     const MachineIndicator(
       code: 'BCR016',
       name: 'Cortadeira Rebobinadeira 16',
       status: 'running',
-      operatorName: 'Rodrigo Gomes',
-      speedMpm: 360,
-      shiftMeters: 37828,
+      operatorName: '',
+      shiftMeters: 37909,
       shiftTarget: 63800,
-      expectedRitmo: 61777,
-      rhythmPct: 60.0,
-      rhythmPoints: [45.0, 60.0, 58.0, 62.0, 60.0],
-      todayMeters: 37828,
-      monthMeters: 2265026,
-      scrapShift: 7.16,
-      scrapMonth: 6.69,
+      expectedRitmo: 41955,
+      rhythmPct: 91.0,
+      todayMeters: 37909,
+      monthMeters: 2408541,
+      scrapShift: 6.86,
+      scrapMonth: 6.52,
       scrapTarget: 3.0,
       productionOrder: '',
       materialDescription: '',
       scrapReasons: [],
+      shiftAnalysisText: 'desde 06:02',
+      rhythmClass: 'ritmo-alerta',
     ),
   ];
 
@@ -315,28 +339,153 @@ class IndicatorsState extends ChangeNotifier {
     ).toList();
   }
 
-  // Plant Alerts
-  final List<PlantAlert> _alerts = [
-    PlantAlert(
-      id: 'ALT-1',
-      title: 'Atenção: Aparas BCR014 em 10,07%',
-      message: 'A máquina BCR014 ultrapassou o limite de aparas no turno. Verificar refile e guilhotina.',
-      severity: AlertSeverity.danger,
-      timestamp: DateTime.now().subtract(const Duration(minutes: 12)),
-      machineCode: 'BCR014',
-    ),
-    PlantAlert(
-      id: 'ALT-2',
-      title: 'Destaque Produtivo: BCR015 lidera o mês',
-      message: 'BCR015 atingiu 3.498.104 metros acumulados no mês e 60.371 metros hoje.',
-      severity: AlertSeverity.success,
-      timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
-      machineCode: 'BCR015',
-    ),
-  ];
+  // Plant Alerts (Calculated dynamically from real telemetry and factory limits)
+  List<PlantAlert> _alerts = [];
 
   List<PlantAlert> get alerts => _alerts;
   int get unreadAlertsCount => _alerts.where((a) => !a.isRead).length;
+
+  void markAlertAsRead(String id) {
+    final index = _alerts.indexWhere((a) => a.id == id);
+    if (index != -1) {
+      final a = _alerts[index];
+      _alerts[index] = PlantAlert(
+        id: a.id,
+        title: a.title,
+        message: a.message,
+        severity: a.severity,
+        timestamp: a.timestamp,
+        machineCode: a.machineCode,
+        isRead: true,
+      );
+      notifyListeners();
+    }
+  }
+
+  void markAllAlertsAsRead() {
+    _alerts = _alerts.map((a) => PlantAlert(
+      id: a.id,
+      title: a.title,
+      message: a.message,
+      severity: a.severity,
+      timestamp: a.timestamp,
+      machineCode: a.machineCode,
+      isRead: true,
+    )).toList();
+    notifyListeners();
+  }
+
+  void _generateRealAlerts() {
+    final list = <PlantAlert>[];
+    final now = _lastUpdate;
+
+    // 1. Alertas individuais das máquinas (Aparas e Ritmo)
+    for (final m in _machines) {
+      // Aparas Mês Crítica (>= 2x meta de 3.0%)
+      if (m.scrapMonth >= (m.scrapTarget * 2.0)) {
+        list.add(PlantAlert(
+          id: 'scrap_crit_${m.code}',
+          title: '${m.code} — Aparas Críticas no Mês (${m.scrapMonth.toStringAsFixed(2)}%)',
+          message: 'A taxa de aparas acumulada no mês (${m.scrapMonth.toStringAsFixed(2)}%) está em nível crítico, superando o dobro da meta permitida de ${m.scrapTarget.toStringAsFixed(1)}%.',
+          severity: AlertSeverity.danger,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      } 
+      // Aparas Mês Acima da Meta (> 3.0%)
+      else if (m.scrapMonth > m.scrapTarget) {
+        list.add(PlantAlert(
+          id: 'scrap_month_${m.code}',
+          title: '${m.code} — Aparas Acima da Meta (${m.scrapMonth.toStringAsFixed(2)}%)',
+          message: 'Aparas acumuladas de ${m.scrapMonth.toStringAsFixed(2)}% ultrapassam o limite tolerado de ${m.scrapTarget.toStringAsFixed(1)}%.',
+          severity: AlertSeverity.warning,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+
+      // Aparas Turno Atual Acima da Meta (> 3.0%)
+      if (m.scrapShift != null && m.scrapShift! > m.scrapTarget) {
+        list.add(PlantAlert(
+          id: 'scrap_shift_${m.code}',
+          title: '${m.code} — Aparas Elevadas no Turno (${m.scrapShift!.toStringAsFixed(2)}%)',
+          message: 'Aparas apuradas no turno atual em ${m.scrapShift!.toStringAsFixed(2)}% (meta: ${m.scrapTarget.toStringAsFixed(1)}%). Necessário verificar refile.',
+          severity: AlertSeverity.warning,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+
+      // Máquina Parada no Turno
+      if (m.shiftMeters == 0) {
+        list.add(PlantAlert(
+          id: 'stopped_${m.code}',
+          title: '${m.code} — Máquina Sem Produção no Turno',
+          message: 'Nenhum metro registrado no turno atual (0 m).',
+          severity: AlertSeverity.danger,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+      // Ritmo Ruim (< 80%)
+      else if (m.rhythmClass == 'ritmo-ruim' || (m.rhythmPct > 0 && m.rhythmPct < 80)) {
+        list.add(PlantAlert(
+          id: 'rhythm_low_${m.code}',
+          title: '${m.code} — Ritmo Crítico de Produção (${m.rhythmPct.toInt()}%)',
+          message: 'Produção realizada (${m.shiftMeters} m) abaixo do ritmo esperado de ${m.expectedRitmo} m (${m.rhythmPct.toInt()}%). Meta: ${m.shiftTarget} m.',
+          severity: AlertSeverity.danger,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+      // Ritmo Alerta (80% - 99%)
+      else if (m.rhythmClass == 'ritmo-alerta' || (m.rhythmPct >= 80 && m.rhythmPct < 100)) {
+        list.add(PlantAlert(
+          id: 'rhythm_alert_${m.code}',
+          title: '${m.code} — Ritmo Abaixo do Esperado (${m.rhythmPct.toInt()}%)',
+          message: 'Ritmo em ${m.rhythmPct.toInt()}%. Produzido ${m.shiftMeters} m de ${m.expectedRitmo} m esperados até o momento.',
+          severity: AlertSeverity.warning,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+      // Ritmo Excelente (>= 110%)
+      else if (m.rhythmPct >= 110) {
+        list.add(PlantAlert(
+          id: 'rhythm_ok_${m.code}',
+          title: '${m.code} — Ritmo Acima da Meta (${m.rhythmPct.toInt()}%)',
+          message: 'Produção superando o ritmo esperado com ${m.shiftMeters} m produzidos (${m.rhythmPct.toInt()}%).',
+          severity: AlertSeverity.success,
+          timestamp: now,
+          machineCode: m.code,
+        ));
+      }
+    }
+
+    // 2. Alertas Globais do Setor
+    if (_sectorScrapMonth > _scrapGoal) {
+      list.add(PlantAlert(
+        id: 'sector_scrap_month',
+        title: 'Setor Corte & Reb. — Aparas no Mês (${_sectorScrapMonth.toStringAsFixed(2)}%)',
+        message: 'Média de aparas do setor (${_sectorScrapMonth.toStringAsFixed(2)}%) está acima da meta geral de ${_scrapGoal.toStringAsFixed(1)}%.',
+        severity: AlertSeverity.warning,
+        timestamp: now,
+      ));
+    }
+
+    // Ordenar alertas por gravidade: danger primeiro, depois warning, info, success
+    list.sort((a, b) {
+      final order = {
+        AlertSeverity.danger: 0,
+        AlertSeverity.warning: 1,
+        AlertSeverity.info: 2,
+        AlertSeverity.success: 3,
+      };
+      return (order[a.severity] ?? 4).compareTo(order[b.severity] ?? 4);
+    });
+
+    _alerts = list;
+  }
 
   // WebSocket Service (Node-RED Integration)
   late final WebSocketService _wsService;
@@ -376,6 +525,7 @@ class IndicatorsState extends ChangeNotifier {
       },
     );
     _firebaseService.start();
+    _generateRealAlerts();
   }
 
   void updateWebSocketUrl(String newUrl) {
@@ -413,19 +563,29 @@ class IndicatorsState extends ChangeNotifier {
     return double.tryParse(str);
   }
 
-  static List<double> _parseSvgPolylinePoints(String? linha) {
+  static List<Offset> _parseSvgPolylineCoordinates(String? linha) {
     if (linha == null || linha.trim().isEmpty) return const [];
     try {
       final pairs = linha.trim().split(RegExp(r'\s+'));
-      final points = <double>[];
+      final points = <Offset>[];
       for (final pair in pairs) {
         final coords = pair.split(',');
         if (coords.length >= 2) {
+          final x = double.tryParse(coords[0].trim());
           final y = double.tryParse(coords[1].trim());
-          if (y != null) {
-            // No web/Node-RED: y = 74 - (pct / 150) * 65  =>  pct = ((74 - y) / 65) * 150
-            final pct = ((74.0 - y) / 65.0) * 150.0;
-            points.add(double.parse(pct.clamp(0.0, 300.0).toStringAsFixed(1)));
+          if (x != null && y != null) {
+            // Node-RED mini charts:
+            // M = { larg: 240, alt: 104, esq: 26, dir: 8, topo: 8, base: 18, pctMax: 150 };
+            // mx(h) = 26 + (h / 8) * (240 - 26 - 8) = 26 + (h / 8) * 206
+            // => xRatio = (x - 26) / 206 (normalized 0.0 to 1.0 across the 8h shift)
+            final xRatio = ((x - 26.0) / 206.0).clamp(0.0, 1.0);
+
+            // Node-RED: my(p) = 8 + (1 - p / 150) * 78 => p = ((86 - y) / 78) * 150
+            final pct = (((86.0 - y) / 78.0) * 150.0).clamp(0.0, 300.0);
+            points.add(Offset(
+              double.parse(xRatio.toStringAsFixed(4)),
+              double.parse(pct.toStringAsFixed(1)),
+            ));
           }
         }
       }
@@ -435,8 +595,29 @@ class IndicatorsState extends ChangeNotifier {
     }
   }
 
+  static List<double> _parseSvgPolylinePoints(String? linha) {
+    final coords = _parseSvgPolylineCoordinates(linha);
+    return coords.map((c) => c.dy).toList();
+  }
+
   void _handleTelemetry(Map<String, dynamic> data) {
     _lastUpdate = DateTime.now();
+
+    // Sincronização Automática de Turno (se não estiver em override manual)
+    if (!_manualShiftOverride) {
+      if (data.containsKey('nomeTurno')) {
+        final nt = data['nomeTurno'].toString().toLowerCase();
+        if (nt.contains('1')) {
+          _selectedShift = ShiftFilter.shift1;
+        } else if (nt.contains('2')) {
+          _selectedShift = ShiftFilter.shift2;
+        } else if (nt.contains('3')) {
+          _selectedShift = ShiftFilter.shift3;
+        }
+      } else {
+        _selectedShift = getCurrentShift();
+      }
+    }
 
     // 1. Transferência (formato customizado ou direto do Node-RED)
     if (data.containsKey('transferenciaHoje') || data.containsKey('transferenciaMensal')) {
@@ -468,7 +649,9 @@ class IndicatorsState extends ChangeNotifier {
       if (c['atual'] != null) _corteCurrentMeters = (c['atual'] as num).toInt();
       if (c['meta'] != null) _corteTargetMeters = (c['meta'] as num).toInt();
     }
-    if (data.containsKey('concluidoPctVisual')) {
+    if (data.containsKey('feitoPctVisual')) {
+      _corteConcludedPercentOverride = _parsePctString(data['feitoPctVisual']);
+    } else if (data.containsKey('concluidoPctVisual')) {
       _corteConcludedPercentOverride = _parsePctString(data['concluidoPctVisual']);
     }
     if (data.containsKey('restantePctVisual')) {
@@ -570,23 +753,25 @@ class IndicatorsState extends ChangeNotifier {
           sMes = _parsePctString(ap!['mesTexto']) ?? sMes;
         }
 
-        List<double>? pts;
+        List<Offset>? series;
         if (gr?['linha'] != null) {
-          final parsed = _parseSvgPolylinePoints(gr!['linha']?.toString());
+          final parsed = _parseSvgPolylineCoordinates(gr!['linha']?.toString());
           if (parsed.isNotEmpty) {
-            pts = parsed;
+            series = parsed;
           }
         }
-        if (pts == null) {
-          if (gr?['pontos'] is List) {
-            pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
-          } else if (gr?['rhythmPoints'] is List) {
-            pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-          } else if (m['rhythmPoints'] is List) {
-            pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-          } else if (m['pontos'] is List) {
-            pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
-          }
+
+        List<double>? pts;
+        if (series != null && series.isNotEmpty) {
+          pts = series.map((e) => e.dy).toList();
+        } else if (gr?['pontos'] is List) {
+          pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (gr?['rhythmPoints'] is List) {
+          pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (m['rhythmPoints'] is List) {
+          pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (m['pontos'] is List) {
+          pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
         }
 
         // Subtítulo da análise de turno (ex: "desde 06:02")
@@ -595,12 +780,21 @@ class IndicatorsState extends ChangeNotifier {
             data['pctSetorTexto']?.toString() ??
             existing.shiftAnalysisText;
 
+        final rClass = gr?['classe']?.toString() ??
+            m['statusClasse']?.toString() ??
+            m['classe']?.toString() ??
+            (rPct >= 100 ? 'ritmo-ok' : (rPct >= 80 ? 'ritmo-alerta' : 'ritmo-ruim'));
+
         return existing.copyWith(
+          status: metrosTurno > 0 ? 'running' : 'stopped',
+          rhythmClass: rClass,
+          operatorName: m['operador']?.toString() ?? m['operatorName']?.toString() ?? '',
           shiftMeters: metrosTurno,
           shiftTarget: metaTurno,
           expectedRitmo: esperadoTurno,
           rhythmPct: rPct,
           rhythmPoints: pts ?? existing.rhythmPoints,
+          rhythmSeries: series ?? existing.rhythmSeries,
           todayMeters: metragemHoje,
           monthMeters: metragemMes,
           scrapShift: sShift,
@@ -608,6 +802,30 @@ class IndicatorsState extends ChangeNotifier {
           shiftAnalysisText: shiftAnalysis,
         );
       }).toList();
+
+      // Curva consolidada do setor (calculada a partir das séries temporais reais das máquinas)
+      final allSeries = _machines.map((m) => m.rhythmSeries).where((s) => s.isNotEmpty).toList();
+      if (allSeries.isNotEmpty) {
+        allSeries.sort((a, b) => b.length.compareTo(a.length));
+        final ref = allSeries.first;
+        final sectorSeries = <Offset>[];
+        for (int i = 0; i < ref.length; i++) {
+          final x = ref[i].dx;
+          double sumY = 0;
+          int count = 0;
+          for (final s in allSeries) {
+            if (i < s.length) {
+              sumY += s[i].dy;
+              count++;
+            }
+          }
+          if (count > 0) {
+            sectorSeries.add(Offset(x, double.parse((sumY / count).toStringAsFixed(1))));
+          }
+        }
+        _sectorRhythmSeries = sectorSeries;
+        _sectorRhythmPoints = sectorSeries.map((p) => p.dy).toList();
+      }
     } else if (data.containsKey('maquinas') && data['maquinas'] is List) {
       final list = data['maquinas'] as List;
       _machines = list.map((item) {
@@ -616,6 +834,7 @@ class IndicatorsState extends ChangeNotifier {
       }).toList();
     }
 
+    _generateRealAlerts();
     notifyListeners();
   }
 

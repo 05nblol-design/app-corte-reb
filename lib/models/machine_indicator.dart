@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class ScrapReason {
   final String category;
   final double weightKg;
@@ -35,6 +37,7 @@ class MachineIndicator {
   final int expectedRitmo; // Metros esperados pelo ritmo (ex: 49.927)
   final double rhythmPct; // Ritmo percentual (ex: 71%)
   final List<double> rhythmPoints; // Pontos horários da curva de ritmo
+  final List<Offset> rhythmSeries; // Pontos (xRatio 0..1, pct) mapeados com exatidão temporal
   final int todayMeters; // Metros hoje
   final int monthMeters; // Metros no mês
   final double? scrapShift; // Aparas 1º Turno (Agora)
@@ -45,18 +48,20 @@ class MachineIndicator {
   final String materialDescription;
   final List<ScrapReason> scrapReasons;
   final String shiftAnalysisText; // ex: "desde 06:02"
+  final String rhythmClass; // 'ritmo-ok', 'ritmo-alerta', 'ritmo-ruim'
 
   const MachineIndicator({
     required this.code,
     required this.name,
     required this.status,
-    required this.operatorName,
-    required this.speedMpm,
+    this.operatorName = '',
+    this.speedMpm = 0,
     required this.shiftMeters,
     required this.shiftTarget,
     this.expectedRitmo = 0,
     this.rhythmPct = 0.0,
     this.rhythmPoints = const [],
+    this.rhythmSeries = const [],
     required this.todayMeters,
     required this.monthMeters,
     this.scrapShift,
@@ -67,10 +72,28 @@ class MachineIndicator {
     required this.materialDescription,
     this.scrapReasons = const [],
     this.shiftAnalysisText = 'desde 06:02',
+    this.rhythmClass = '',
   });
 
   bool get isScrapAboveTarget => scrapMonth > scrapTarget;
   bool get isScrapCritical => scrapMonth >= (scrapTarget * 2.0); // > 6.0%
+
+  bool get isRunning => shiftMeters > 0;
+
+  String get statusDisplay {
+    if (shiftMeters == 0) return 'PARADA';
+    if (rhythmClass == 'ritmo-ok' || rhythmPct >= 100) return 'RITMO OK';
+    if (rhythmClass == 'ritmo-alerta' || (rhythmPct >= 80 && rhythmPct < 100)) return 'ATENÇÃO';
+    if (rhythmClass == 'ritmo-ruim' || (rhythmPct > 0 && rhythmPct < 80)) return 'RITMO BAIXO';
+    return 'EM OPERAÇÃO';
+  }
+
+  Color get statusColor {
+    if (shiftMeters == 0) return const Color(0xFFEF4444);
+    if (rhythmClass == 'ritmo-ok' || rhythmPct >= 100) return const Color(0xFF10B981);
+    if (rhythmClass == 'ritmo-alerta' || (rhythmPct >= 80 && rhythmPct < 100)) return const Color(0xFFF59E0B);
+    return const Color(0xFFEF4444);
+  }
 
   double get shiftProgressPercent =>
       shiftTarget > 0 ? (shiftMeters / shiftTarget) * 100 : 0.0;
@@ -90,6 +113,16 @@ class MachineIndicator {
               ?.map((e) => (e as num).toDouble())
               .toList() ??
           [],
+      rhythmSeries: (json['rhythmSeries'] as List<dynamic>?)
+              ?.map((e) {
+                if (e is List && e.length >= 2) {
+                  return Offset((e[0] as num).toDouble(), (e[1] as num).toDouble());
+                }
+                return null;
+              })
+              .whereType<Offset>()
+              .toList() ??
+          const [],
       todayMeters: (json['todayMeters'] as num?)?.toInt() ?? (json['MetragemHoje'] as num?)?.toInt() ?? 0,
       monthMeters: (json['monthMeters'] as num?)?.toInt() ?? (json['Metragem'] as num?)?.toInt() ?? 0,
       scrapShift: (json['scrapShift'] as num?)?.toDouble(),
@@ -134,6 +167,7 @@ class MachineIndicator {
     'materialDescription': materialDescription,
     'scrapReasons': scrapReasons.map((r) => r.toJson()).toList(),
     'shiftAnalysisText': shiftAnalysisText,
+    'rhythmSeries': rhythmSeries.map((p) => [p.dx, p.dy]).toList(),
   };
 
   MachineIndicator copyWith({
@@ -147,6 +181,7 @@ class MachineIndicator {
     int? expectedRitmo,
     double? rhythmPct,
     List<double>? rhythmPoints,
+    List<Offset>? rhythmSeries,
     int? todayMeters,
     int? monthMeters,
     double? scrapShift,
@@ -157,6 +192,7 @@ class MachineIndicator {
     String? materialDescription,
     List<ScrapReason>? scrapReasons,
     String? shiftAnalysisText,
+    String? rhythmClass,
   }) {
     return MachineIndicator(
       code: code ?? this.code,
@@ -169,6 +205,7 @@ class MachineIndicator {
       expectedRitmo: expectedRitmo ?? this.expectedRitmo,
       rhythmPct: rhythmPct ?? this.rhythmPct,
       rhythmPoints: rhythmPoints ?? this.rhythmPoints,
+      rhythmSeries: rhythmSeries ?? this.rhythmSeries,
       todayMeters: todayMeters ?? this.todayMeters,
       monthMeters: monthMeters ?? this.monthMeters,
       scrapShift: scrapShift ?? this.scrapShift,
@@ -179,6 +216,7 @@ class MachineIndicator {
       materialDescription: materialDescription ?? this.materialDescription,
       scrapReasons: scrapReasons ?? this.scrapReasons,
       shiftAnalysisText: shiftAnalysisText ?? this.shiftAnalysisText,
+      rhythmClass: rhythmClass ?? this.rhythmClass,
     );
   }
 }

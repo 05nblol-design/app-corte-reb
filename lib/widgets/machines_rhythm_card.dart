@@ -92,7 +92,7 @@ class MachinesRhythmCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Evolução contínua da velocidade real vs meta estabelecida',
+                          'Evolução contínua do ritmo real vs meta estabelecida',
                           style: TextStyle(
                             fontSize: 10,
                             color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
@@ -165,7 +165,6 @@ class MachinesRhythmCard extends StatelessWidget {
   Widget _buildMachineMiniChart(MachineIndicator m) {
     final isGood = m.rhythmPct >= 80;
     final badgeColor = isGood ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-    final isRunning = m.status == 'running';
 
     final miniBg = isDark ? const Color(0xFF0C1628) : const Color(0xFFF8FAFC);
     final miniBorder = isDark ? const Color(0xFF1E2D4E) : const Color(0xFFE2E8F0);
@@ -198,7 +197,7 @@ class MachinesRhythmCard extends StatelessWidget {
                     height: 8,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isRunning ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                      color: m.statusColor,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -208,15 +207,6 @@ class MachinesRhythmCard extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${m.speedMpm} m/min',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -246,9 +236,11 @@ class MachinesRhythmCard extends StatelessWidget {
           // Gráfico de Ritmo com Meta 100% Tracejada e Horários Dinâmicos
           RhythmLineChart(
             points: _getMachinePoints(m),
+            series: m.rhythmSeries.isNotEmpty ? m.rhythmSeries : null,
             isDark: isDark,
             height: 100,
             timeLabels: timeLabels ?? const ['06h', '10h', '14h'],
+            lineColor: m.statusColor,
           ),
         ],
       ),

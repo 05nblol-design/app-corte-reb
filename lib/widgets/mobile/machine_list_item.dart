@@ -72,7 +72,7 @@ class MachineListItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _buildStatusBadge(machine.status),
+                        _buildStatusBadge(machine),
                         if (machine.code == 'BCR015') ...[
                           const SizedBox(width: 6),
                           Container(
@@ -176,12 +176,12 @@ class MachineListItem extends StatelessWidget {
                       ],
                     ),
 
-                    // Velocidade & Ritmo
+                    // Ritmo de Produção
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'VELOCIDADE / RITMO',
+                          'RITMO ATUAL',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -191,10 +191,10 @@ class MachineListItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${machine.speedMpm} m/min • ${machine.rhythmPct.toInt()}%',
+                          '${machine.rhythmPct.toInt()}%',
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
                             color: speedColor,
                           ),
                         ),
@@ -219,6 +219,41 @@ class MachineListItem extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 8),
+
+                // Real Telemetry Analysis Line
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.insights_rounded,
+                        size: 13,
+                        color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${machine.shiftAnalysisText.isNotEmpty ? machine.shiftAnalysisText : "desde 06:02"} do ritmo · esperado ${Formatters.formatInteger(machine.expectedRitmo)} · meta ${Formatters.formatInteger(machine.shiftTarget)}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -227,45 +262,23 @@ class MachineListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color border;
-    Color fg;
-    String label;
-
-    switch (status) {
-      case 'running':
-        bg = isDark ? AppColors.successBgDark : AppColors.successBgLight;
-        border = isDark ? AppColors.successBorderDark : AppColors.successBorderLight;
-        fg = isDark ? AppColors.successTextDark : AppColors.successTextLight;
-        label = 'EM OPERAÇÃO';
-        break;
-      case 'setup':
-        bg = isDark ? AppColors.warningBgDark : AppColors.warningBgLight;
-        border = isDark ? AppColors.warningBorderDark : AppColors.warningBorderLight;
-        fg = isDark ? AppColors.warningTextDark : AppColors.warningTextLight;
-        label = 'SETUP';
-        break;
-      default:
-        bg = isDark ? AppColors.dangerBgDark : AppColors.dangerBgLight;
-        border = isDark ? AppColors.dangerBorderDark : AppColors.dangerBorderLight;
-        fg = isDark ? AppColors.dangerTextDark : AppColors.dangerTextLight;
-        label = 'PARADA';
-    }
+  Widget _buildStatusBadge(MachineIndicator m) {
+    final color = m.statusColor;
+    final label = m.statusDisplay;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: bg,
+        color: color.withValues(alpha: isDark ? 0.16 : 0.10),
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: border),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.50 : 0.35)),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w800,
-          color: fg,
+          color: color,
           letterSpacing: 0.4,
         ),
       ),

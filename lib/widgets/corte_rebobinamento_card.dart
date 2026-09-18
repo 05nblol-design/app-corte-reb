@@ -10,6 +10,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
   final double completedPercent;
   final double remainingPercent;
   final List<double> sectorRhythmPoints;
+  final List<Offset>? sectorRhythmSeries;
   final String? shiftTitle;
   final List<String>? timeLabels;
   final bool isDark;
@@ -21,6 +22,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
     required this.completedPercent,
     required this.remainingPercent,
     this.sectorRhythmPoints = const [58, 70, 68, 72, 72],
+    this.sectorRhythmSeries,
     this.shiftTitle,
     this.timeLabels,
     required this.isDark,
@@ -311,6 +313,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
 
           RhythmLineChart(
             points: sectorRhythmPoints,
+            series: sectorRhythmSeries,
             isDark: isDark,
             height: 95,
             timeLabels: timeLabels ?? const ['06h', '08h', '10h', '12h', '14h'],

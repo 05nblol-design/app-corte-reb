@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/utils/formatters.dart';
 import '../models/machine_indicator.dart';
-import '../models/alert_model.dart';
 import '../providers/indicators_state.dart';
 import '../widgets/transfer_card.dart';
 import '../widgets/scrap_table_card.dart';
@@ -12,6 +11,8 @@ import '../widgets/machines_rhythm_card.dart';
 import '../widgets/mobile/machine_list_item.dart';
 import 'mobile_machine_sheet.dart';
 import '../widgets/reflective_logo_loader.dart';
+import '../models/alert_model.dart';
+import '../widgets/alerts_dialog.dart';
 
 class MobileHomeScreen extends StatefulWidget {
   final IndicatorsState state;
@@ -157,6 +158,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
       builder: (context) => MobileMachineSheet(
         machine: machine,
         isDark: widget.state.isDarkMode,
+        timeLabels: widget.state.currentShiftTimeLabels,
       ),
     );
   }
@@ -175,10 +177,12 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
     }
 
     switch (_activeFilter) {
-      case 'running':
-        return list.where((m) => m.status == 'running').toList();
-      case 'setup':
-        return list.where((m) => m.status == 'setup').toList();
+      case 'ritmo-ok':
+        return list.where((m) => m.rhythmClass == 'ritmo-ok' || m.rhythmPct >= 100).toList();
+      case 'ritmo-alerta':
+        return list.where((m) => m.rhythmClass == 'ritmo-alerta' || (m.rhythmPct >= 80 && m.rhythmPct < 100)).toList();
+      case 'ritmo-ruim':
+        return list.where((m) => m.rhythmClass == 'ritmo-ruim' || (m.rhythmPct > 0 && m.rhythmPct < 80)).toList();
       case 'critical':
         return list.where((m) => m.scrapMonth > m.scrapTarget).toList();
       default:
@@ -306,14 +310,6 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _buildSpeedDialItem(
-                          index: 3,
-                          label: 'Alertas (${widget.state.alerts.length})',
-                          icon: Icons.notifications_active_rounded,
-                          color: AppColors.dangerLight,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 10),
                         _buildSpeedDialItem(
                           index: 4,
                           label: 'Gráficos de Ritmo',
@@ -738,6 +734,59 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
           ),
         ),
         const SizedBox(width: 6),
+        // Botão de Alertas com Badge Real
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            IconButton(
+              tooltip: 'Alertas (${widget.state.alerts.length})',
+              icon: Icon(
+                widget.state.alerts.isNotEmpty
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_none_rounded,
+                color: widget.state.alerts.any((a) => a.severity == AlertSeverity.danger)
+                    ? AppColors.danger
+                    : (widget.state.alerts.isNotEmpty
+                        ? const Color(0xFFF59E0B)
+                        : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
+                size: 20,
+              ),
+              onPressed: () {
+                _closeAllOverlays();
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertsDialog(
+                    alerts: widget.state.alerts,
+                    isDark: isDark,
+                  ),
+                );
+              },
+            ),
+            if (widget.state.unreadAlertsCount > 0)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(2.5),
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
+                  child: Center(
+                    child: Text(
+                      '${widget.state.unreadAlertsCount}',
+                      style: const TextStyle(
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
         IconButton(
           icon: Icon(
             isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -759,8 +808,6 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
         return _buildMachinesHubTab(isDark);
       case 2:
         return _buildQualityScrapTab(isDark);
-      case 3:
-        return _buildAlertsTab(isDark);
       default:
         return _buildExecutiveDashboardTab(isDark);
     }
@@ -785,6 +832,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
           completedPercent: widget.state.corteConcludedPercent,
           remainingPercent: widget.state.corteRemainingPercent,
           sectorRhythmPoints: widget.state.currentSectorRhythmPoints,
+          sectorRhythmSeries: widget.state.currentSectorRhythmSeries,
           shiftTitle: widget.state.shiftShortName,
           timeLabels: widget.state.currentSectorTimeLabels,
           isDark: isDark,
@@ -1008,13 +1056,15 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _filterChip('Todas (6)', 'all', isDark),
+                    _filterChip('Todas (${widget.state.machines.length})', 'all', isDark),
                     const SizedBox(width: 8),
-                    _filterChip('Em Operação (5)', 'running', isDark),
+                    _filterChip('Ritmo OK (${widget.state.machines.where((m) => m.rhythmClass == 'ritmo-ok' || m.rhythmPct >= 100).length})', 'ritmo-ok', isDark),
                     const SizedBox(width: 8),
-                    _filterChip('Em Setup (1)', 'setup', isDark),
+                    _filterChip('Atenção (${widget.state.machines.where((m) => m.rhythmClass == 'ritmo-alerta' || (m.rhythmPct >= 80 && m.rhythmPct < 100)).length})', 'ritmo-alerta', isDark),
                     const SizedBox(width: 8),
-                    _filterChip('Aparas > 3% (4)', 'critical', isDark),
+                    _filterChip('Ritmo Baixo (${widget.state.machines.where((m) => m.rhythmClass == 'ritmo-ruim' || (m.rhythmPct > 0 && m.rhythmPct < 80)).length})', 'ritmo-ruim', isDark),
+                    const SizedBox(width: 8),
+                    _filterChip('Aparas > 3% (${widget.state.machines.where((m) => m.scrapMonth > m.scrapTarget).length})', 'critical', isDark),
                   ],
                 ),
               ),
@@ -1122,103 +1172,6 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
     );
   }
 
-  /// ABA 4: Alertas
-  Widget _buildAlertsTab(bool isDark) {
-    final alerts = widget.state.alerts;
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'OCORRÊNCIAS & ALERTAS INDUSTRIAIS',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.8,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.brandPrimary,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.brandSecondary.withOpacity(0.15)
-                    : const Color(0xFFE0F2FE),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF0369A1) : const Color(0xFFBAE6FD),
-                ),
-              ),
-              child: Text(
-                '${alerts.length} ATIVOS',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? const Color(0xFF38BDF8) : AppColors.brandSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        ...alerts.map((alert) => Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCardBg : Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: alert.severity == AlertSeverity.danger
-                      ? (isDark ? AppColors.dangerBorderDark : AppColors.dangerBorderLight)
-                      : (isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        alert.title,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: alert.severity == AlertSeverity.danger
-                              ? (isDark ? AppColors.dangerTextDark : AppColors.dangerLight)
-                              : (isDark ? Colors.white : AppColors.lightTextPrimary),
-                        ),
-                      ),
-                      Text(
-                        Formatters.formatTime(alert.timestamp),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    alert.message,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            )),
-        const SizedBox(height: 80),
-      ],
-    );
-  }
 
   Widget _buildSectorSummaryCard(bool isDark) {
     final Color scrapValueColor = isDark ? AppColors.dangerDark : AppColors.dangerLight;

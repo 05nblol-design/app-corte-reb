@@ -3,15 +3,17 @@ import '../core/theme/app_colors.dart';
 import '../core/utils/formatters.dart';
 import '../core/utils/responsive.dart';
 import '../providers/indicators_state.dart';
+import '../models/alert_model.dart';
+import 'alerts_dialog.dart';
 
 class HeaderNavBar extends StatelessWidget {
   final IndicatorsState state;
-  final VoidCallback onOpenAlerts;
+  final VoidCallback? onOpenAlerts;
 
   const HeaderNavBar({
     super.key,
     required this.state,
-    required this.onOpenAlerts,
+    this.onOpenAlerts,
   });
 
   @override
@@ -285,6 +287,63 @@ class HeaderNavBar extends StatelessWidget {
           const SizedBox(width: 12),
         ],
 
+        // Real Telemetry Alerts Bell
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            IconButton(
+              tooltip: 'Alertas Operacionais (${state.alerts.length})',
+              icon: Icon(
+                state.alerts.isNotEmpty
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_none_rounded,
+                size: 21,
+                color: state.alerts.any((a) => a.severity == AlertSeverity.danger)
+                    ? AppColors.danger
+                    : (state.alerts.isNotEmpty
+                        ? const Color(0xFFF59E0B)
+                        : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
+              ),
+              onPressed: () {
+                if (onOpenAlerts != null) {
+                  onOpenAlerts!();
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertsDialog(
+                      alerts: state.alerts,
+                      isDark: isDark,
+                    ),
+                  );
+                }
+              },
+            ),
+            if (state.unreadAlertsCount > 0)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                  child: Center(
+                    child: Text(
+                      '${state.unreadAlertsCount}',
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+
         // Manual Refresh Button
         IconButton(
           tooltip: 'Atualizar Dados',
@@ -294,48 +353,6 @@ class HeaderNavBar extends StatelessWidget {
             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
           ),
           onPressed: state.manualRefresh,
-        ),
-
-        // Plant Alerts Bell
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            IconButton(
-              tooltip: 'Alertas de Fábrica',
-              icon: Icon(
-                Icons.notifications_outlined,
-                size: 22,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-              ),
-              onPressed: onOpenAlerts,
-            ),
-            if (state.unreadAlertsCount > 0)
-              Positioned(
-                top: 6,
-                right: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppColors.danger,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 16,
-                    minHeight: 16,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${state.unreadAlertsCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
         ),
 
         // TV Wallboard Mode Button

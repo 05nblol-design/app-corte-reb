@@ -10,7 +10,6 @@ import '../widgets/leadership_card.dart';
 import '../widgets/corte_rebobinamento_card.dart';
 import '../widgets/machines_rhythm_card.dart';
 import '../widgets/machine_detail_dialog.dart';
-import '../widgets/alerts_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
   final IndicatorsState state;
@@ -33,16 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context) => MachineDetailDialog(
         machine: machine,
         isDark: widget.state.isDarkMode,
-      ),
-    );
-  }
-
-  void _openAlerts() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertsDialog(
-        alerts: widget.state.alerts,
-        isDark: widget.state.isDarkMode,
+        timeLabels: widget.state.currentShiftTimeLabels,
       ),
     );
   }
@@ -67,7 +57,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Header Top Bar
             HeaderNavBar(
               state: widget.state,
-              onOpenAlerts: _openAlerts,
             ),
 
             // Main Content Area
@@ -148,6 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 completedPercent: widget.state.corteConcludedPercent,
                 remainingPercent: widget.state.corteRemainingPercent,
                 sectorRhythmPoints: widget.state.currentSectorRhythmPoints,
+                sectorRhythmSeries: widget.state.currentSectorRhythmSeries,
                 shiftTitle: widget.state.shiftShortName,
                 timeLabels: widget.state.currentSectorTimeLabels,
                 isDark: isDark,
@@ -190,7 +180,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 targetMeters: widget.state.corteTargetMeters,
                 completedPercent: widget.state.corteConcludedPercent,
                 remainingPercent: widget.state.corteRemainingPercent,
-                sectorRhythmPoints: widget.state.sectorRhythmPoints,
+                sectorRhythmPoints: widget.state.currentSectorRhythmPoints,
+                sectorRhythmSeries: widget.state.currentSectorRhythmSeries,
+                shiftTitle: widget.state.shiftShortName,
+                timeLabels: widget.state.currentSectorTimeLabels,
                 isDark: isDark,
               ),
             ),
@@ -241,6 +234,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           completedPercent: widget.state.corteConcludedPercent,
           remainingPercent: widget.state.corteRemainingPercent,
           sectorRhythmPoints: widget.state.currentSectorRhythmPoints,
+          sectorRhythmSeries: widget.state.currentSectorRhythmSeries,
           shiftTitle: widget.state.shiftShortName,
           timeLabels: widget.state.currentSectorTimeLabels,
           isDark: isDark,

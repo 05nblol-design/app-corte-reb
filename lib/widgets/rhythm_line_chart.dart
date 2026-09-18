@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 
 class RhythmLineChart extends StatelessWidget {
   final List<double> points;
+  final List<Offset>? series;
   final double targetValue; // usually 100.0
   final double maxValue; // usually 150.0
   final double minValue; // usually 0.0
   final bool isDark;
   final double height;
   final List<String> timeLabels;
+  final Color? lineColor;
 
   const RhythmLineChart({
     super.key,
-    required this.points,
+    this.points = const [],
+    this.series,
     this.targetValue = 100.0,
     this.maxValue = 150.0,
     this.minValue = 0.0,
     required this.isDark,
     this.height = 100.0,
     this.timeLabels = const ['06h', '10h', '14h'],
+    this.lineColor,
   });
 
   @override
@@ -28,11 +32,13 @@ class RhythmLineChart extends StatelessWidget {
       child: CustomPaint(
         painter: _RhythmChartPainter(
           points: points,
+          series: series,
           targetValue: targetValue,
           maxValue: maxValue,
           minValue: minValue,
           isDark: isDark,
           timeLabels: timeLabels,
+          lineColor: lineColor,
         ),
       ),
     );
@@ -41,19 +47,23 @@ class RhythmLineChart extends StatelessWidget {
 
 class _RhythmChartPainter extends CustomPainter {
   final List<double> points;
+  final List<Offset>? series;
   final double targetValue;
   final double maxValue;
   final double minValue;
   final bool isDark;
   final List<String> timeLabels;
+  final Color? lineColor;
 
   _RhythmChartPainter({
     required this.points,
+    this.series,
     required this.targetValue,
     required this.maxValue,
     required this.minValue,
     required this.isDark,
     required this.timeLabels,
+    this.lineColor,
   });
 
   @override
@@ -130,64 +140,89 @@ class _RhythmChartPainter extends CustomPainter {
       gridPaint,
     );
 
-    // 2. Draw Data Points & Curve
-    if (points.isNotEmpty) {
+    // 2. Compute Data Offsets
+    final offsets = <Offset>[];
+    if (series != null && series!.isNotEmpty) {
+      for (final pt in series!) {
+        final x = leftPadding + (pt.dx.clamp(0.0, 1.0) * chartWidth);
+        final y = getY(pt.dy);
+        offsets.add(Offset(x, y));
+      }
+    } else if (points.isNotEmpty) {
       final stepX = points.length > 1 ? chartWidth / (points.length - 1) : chartWidth;
-      final offsets = <Offset>[];
-
       for (int i = 0; i < points.length; i++) {
         final x = leftPadding + (i * stepX);
         final y = getY(points[i]);
         offsets.add(Offset(x, y));
       }
+    }
 
-      // Fill Path (Gradient)
-      final fillPath = Path()..moveTo(offsets.first.dx, baseY);
-      for (final pt in offsets) {
-        fillPath.lineTo(pt.dx, pt.dy);
+    if (offsets.isNotEmpty) {
+      final effectiveLineColor = lineColor ??
+          (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+
+      // Build smooth cubic Bezier curve
+      final curvePath = Path();
+      curvePath.moveTo(offsets.first.dx, offsets.first.dy);
+
+      if (offsets.length == 1) {
+        curvePath.lineTo(offsets.first.dx + 1, offsets.first.dy);
+      } else {
+        for (int i = 0; i < offsets.length - 1; i++) {
+          final p0 = offsets[i];
+          final p1 = offsets[i + 1];
+          final cpX = (p0.dx + p1.dx) / 2;
+          curvePath.cubicTo(cpX, p0.dy, cpX, p1.dy, p1.dx, p1.dy);
+        }
       }
+
+      // Fill Path (Smooth gradient down to baseline)
+      final fillPath = Path.from(curvePath);
       fillPath.lineTo(offsets.last.dx, baseY);
+      fillPath.lineTo(offsets.first.dx, baseY);
       fillPath.close();
 
-      final lineColor = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
       final gradientPaint = Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            lineColor.withOpacity(isDark ? 0.25 : 0.15),
-            lineColor.withOpacity(0.0),
+            effectiveLineColor.withValues(alpha: isDark ? 0.28 : 0.18),
+            effectiveLineColor.withValues(alpha: 0.0),
           ],
         ).createShader(Rect.fromLTWH(leftPadding, topPadding, chartWidth, chartHeight));
 
       canvas.drawPath(fillPath, gradientPaint);
 
-      // Line Path
-      final linePath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
-      for (int i = 1; i < offsets.length; i++) {
-        linePath.lineTo(offsets[i].dx, offsets[i].dy);
-      }
-
+      // Stroke Path (Smooth continuous curve, NO intermediate dots!)
       final linePaint = Paint()
-        ..color = lineColor
-        ..strokeWidth = 2.2
+        ..color = effectiveLineColor
+        ..strokeWidth = 2.4
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke;
 
-      canvas.drawPath(linePath, linePaint);
+      canvas.drawPath(curvePath, linePaint);
 
-      // Dots on Points
-      final dotInnerPaint = Paint()..color = lineColor;
-      final dotBorderPaint = Paint()
+      // Highlight Only Last Point (Live beacon on current time, single point)
+      final lastPt = offsets.last;
+      final outerPulsePaint = Paint()
+        ..color = effectiveLineColor.withValues(alpha: 0.22)
+        ..style = PaintingStyle.fill;
+      final beaconHaloPaint = Paint()
+        ..color = effectiveLineColor.withValues(alpha: 0.55)
+        ..style = PaintingStyle.fill;
+      final beaconInnerPaint = Paint()
+        ..color = effectiveLineColor
+        ..style = PaintingStyle.fill;
+      final beaconCorePaint = Paint()
         ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.4;
+        ..style = PaintingStyle.fill;
 
-      for (final pt in offsets) {
-        canvas.drawCircle(pt, 2.8, dotInnerPaint);
-        canvas.drawCircle(pt, 2.8, dotBorderPaint);
-      }
+      canvas.drawCircle(lastPt, 6.5, outerPulsePaint);
+      canvas.drawCircle(lastPt, 4.0, beaconHaloPaint);
+      canvas.drawCircle(lastPt, 2.5, beaconInnerPaint);
+      canvas.drawCircle(lastPt, 1.2, beaconCorePaint);
     }
 
     // 3. Draw X-Axis Time Labels
@@ -251,7 +286,10 @@ class _RhythmChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _RhythmChartPainter oldDelegate) {
     return oldDelegate.points != points ||
+        oldDelegate.series != series ||
         oldDelegate.isDark != isDark ||
-        oldDelegate.targetValue != targetValue;
+        oldDelegate.targetValue != targetValue ||
+        oldDelegate.timeLabels != timeLabels ||
+        oldDelegate.lineColor != lineColor;
   }
 }

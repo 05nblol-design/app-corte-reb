@@ -208,9 +208,10 @@ class LeadershipCard extends StatelessWidget {
 
   /// CARD MOBILE PARA CADA MÁQUINA (Espaçamento robusto, UX limpa e sem textos espremidos)
   Widget _buildMobileMachineCard(MachineIndicator m) {
+    final statusColor = m.statusColor;
+    final statusLabel = m.statusDisplay;
     final isGood = m.rhythmPct >= 80;
     final rhythmBadgeColor = isGood ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-    final isRunning = m.status == 'running';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -241,7 +242,7 @@ class LeadershipCard extends StatelessWidget {
                         height: 9,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isRunning ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                          color: statusColor,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -258,16 +259,16 @@ class LeadershipCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: (isRunning ? const Color(0xFF10B981) : const Color(0xFFF59E0B))
-                              .withOpacity(0.12),
+                          color: statusColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: statusColor.withValues(alpha: 0.35)),
                         ),
                         child: Text(
-                          isRunning ? '${m.speedMpm} m/min' : 'SETUP',
+                          statusLabel,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: isRunning ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                            color: statusColor,
                           ),
                         ),
                       ),
@@ -468,7 +469,7 @@ class LeadershipCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.speed_outlined,
+                      Icons.insights_rounded,
                       size: 13,
                       color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
                     ),
@@ -637,9 +638,7 @@ class LeadershipCard extends StatelessWidget {
                     height: 8,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: m.status == 'running'
-                          ? const Color(0xFF10B981)
-                          : const Color(0xFFF59E0B),
+                      color: m.statusColor,
                     ),
                   ),
                   const SizedBox(width: 8),
