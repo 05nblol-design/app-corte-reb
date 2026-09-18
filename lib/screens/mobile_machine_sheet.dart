@@ -95,30 +95,32 @@ class MobileMachineSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ORDEM DE PRODUÇÃO (OP)',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: isDark ? AppColors.darkTextMuted : const Color(0xFF475569),
+                    if (machine.productionOrder.trim().isNotEmpty) ...[
+                      Text(
+                        'ORDEM DE PRODUÇÃO (OP)',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                          color: isDark ? AppColors.darkTextMuted : const Color(0xFF475569),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      machine.productionOrder,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                      const SizedBox(height: 3),
+                      Text(
+                        machine.productionOrder,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
+                      const SizedBox(height: 6),
+                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Operador: ${machine.operatorName}',
+                          'Operador: ${machine.operatorName.isNotEmpty ? machine.operatorName : "Turno Vigente"}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,

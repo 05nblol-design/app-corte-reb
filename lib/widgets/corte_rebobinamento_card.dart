@@ -10,6 +10,8 @@ class CorteRebobinamentoCard extends StatelessWidget {
   final double completedPercent;
   final double remainingPercent;
   final List<double> sectorRhythmPoints;
+  final String? shiftTitle;
+  final List<String>? timeLabels;
   final bool isDark;
 
   const CorteRebobinamentoCard({
@@ -19,6 +21,8 @@ class CorteRebobinamentoCard extends StatelessWidget {
     required this.completedPercent,
     required this.remainingPercent,
     this.sectorRhythmPoints = const [58, 70, 68, 72, 72],
+    this.shiftTitle,
+    this.timeLabels,
     required this.isDark,
   });
 
@@ -98,87 +102,70 @@ class CorteRebobinamentoCard extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Row(
+                  children: [
+                    Text(
+                      'Atual: ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                      ),
+                    ),
+                    Text(
+                      Formatters.formatInteger(currentMeters),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                  ],
+                ),
                 Text(
-                  'Atual: ',
+                  '/',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                   ),
                 ),
-                Text(
-                  Formatters.formatInteger(currentMeters),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isDark ? Colors.white : AppColors.lightTextPrimary,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Outfit',
-                  ),
-                ),
-                Text(
-                  '  /  Meta: ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  '${Formatters.formatInteger(targetMeters)} m',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isDark ? Colors.white : AppColors.lightTextPrimary,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Outfit',
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Meta: ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                      ),
+                    ),
+                    Text(
+                      Formatters.formatInteger(targetMeters),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
-          // Donut Gauge
+          // Gauge Centered
           SizedBox(
             width: 190,
             height: 190,
             child: CustomDonutGauge(
               completedPercent: completedPercent,
               remainingPercent: remainingPercent,
+              isDark: isDark,
               concludedColor: concludedColor,
               remainingColor: remainingColor,
-              isDark: isDark,
             ),
           ),
-          const SizedBox(height: 14),
-
-          // Legend Tiles
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildTelemetryTile(
-                label: 'RESTANTE',
-                percent: Formatters.formatPercent(remainingPercent),
-                dotColor: remainingColor,
-                bgColor: isDark ? const Color(0xFF4C0519) : const Color(0xFFFFF1F2),
-                borderColor: isDark ? const Color(0xFF9F1239) : const Color(0xFFFECDD3),
-                textColor: isDark ? Colors.white : AppColors.lightTextPrimary,
-                labelColor: isDark ? const Color(0xFFFDA4AF) : const Color(0xFF9F1239),
-              ),
-              const SizedBox(width: 14),
-              _buildTelemetryTile(
-                label: 'FEITO',
-                percent: Formatters.formatPercent(completedPercent),
-                dotColor: concludedColor,
-                bgColor: isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
-                borderColor: isDark ? const Color(0xFF0F766E) : const Color(0xFFA7F3D0),
-                textColor: isDark ? Colors.white : AppColors.lightTextPrimary,
-                labelColor: isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
-              ),
-            ],
-          ),
-
           const SizedBox(height: 14),
 
           // Sector Cadence
@@ -238,7 +225,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '% DO RITMO DO SETOR — 1º TURNO',
+              '% DO RITMO DO SETOR — ${shiftTitle ?? "1º TURNO"}',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
@@ -253,60 +240,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
             points: sectorRhythmPoints,
             isDark: isDark,
             height: 95,
-            timeLabels: const ['06h', '08h', '10h', '12h', '14h'],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTelemetryTile({
-    required String label,
-    required String percent,
-    required Color dotColor,
-    required Color bgColor,
-    required Color borderColor,
-    required Color textColor,
-    required Color labelColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: borderColor, width: 1),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                  color: labelColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            percent,
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w900,
-              color: textColor,
-              fontFamily: 'Outfit',
-            ),
+            timeLabels: timeLabels ?? const ['06h', '08h', '10h', '12h', '14h'],
           ),
         ],
       ),

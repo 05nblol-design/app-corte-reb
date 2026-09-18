@@ -104,19 +104,19 @@ class MachineListItem extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 6),
-
-                // Order Description (Crisp, High Contrast)
-                Text(
-                  machine.productionOrder,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                if (machine.productionOrder.trim().isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    machine.productionOrder,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: 12),
                 Divider(height: 1, color: isDark ? AppColors.darkDivider : AppColors.lightDivider),

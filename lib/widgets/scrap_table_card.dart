@@ -11,6 +11,7 @@ class ScrapTableCard extends StatelessWidget {
   final double scrapGoal;
   final bool isDark;
   final Function(MachineIndicator) onSelectMachine;
+  final String? shiftLabel;
 
   const ScrapTableCard({
     super.key,
@@ -21,6 +22,7 @@ class ScrapTableCard extends StatelessWidget {
     required this.scrapGoal,
     required this.isDark,
     required this.onSelectMachine,
+    this.shiftLabel,
   });
 
   @override
@@ -131,7 +133,7 @@ class ScrapTableCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    '1º TURNO (AGORA)',
+                    shiftLabel ?? '1º TURNO (AGORA)',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11,

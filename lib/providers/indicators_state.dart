@@ -50,6 +50,71 @@ class IndicatorsState extends ChangeNotifier {
     }
   }
 
+  String get shiftShortName {
+    switch (_selectedShift) {
+      case ShiftFilter.shift1:
+        return '1º TURNO';
+      case ShiftFilter.shift2:
+        return '2º TURNO';
+      case ShiftFilter.shift3:
+        return '3º TURNO';
+      case ShiftFilter.fullDay:
+        return 'DIA 24H';
+    }
+  }
+
+  String get shiftStartTime {
+    switch (_selectedShift) {
+      case ShiftFilter.shift1:
+        return '06:00';
+      case ShiftFilter.shift2:
+        return '14:00';
+      case ShiftFilter.shift3:
+        return '22:00';
+      case ShiftFilter.fullDay:
+        return '06:00';
+    }
+  }
+
+  List<String> get currentShiftTimeLabels {
+    switch (_selectedShift) {
+      case ShiftFilter.shift1:
+        return const ['06h', '10h', '14h'];
+      case ShiftFilter.shift2:
+        return const ['14h', '18h', '22h'];
+      case ShiftFilter.shift3:
+        return const ['22h', '02h', '06h'];
+      case ShiftFilter.fullDay:
+        return const ['06h', '12h', '18h', '00h', '06h'];
+    }
+  }
+
+  List<String> get currentSectorTimeLabels {
+    switch (_selectedShift) {
+      case ShiftFilter.shift1:
+        return const ['06h', '08h', '10h', '12h', '14h'];
+      case ShiftFilter.shift2:
+        return const ['14h', '16h', '18h', '20h', '22h'];
+      case ShiftFilter.shift3:
+        return const ['22h', '00h', '02h', '04h', '06h'];
+      case ShiftFilter.fullDay:
+        return const ['06h', '12h', '18h', '00h', '06h'];
+    }
+  }
+
+  List<double> get currentSectorRhythmPoints {
+    switch (_selectedShift) {
+      case ShiftFilter.shift1:
+        return _sectorRhythmPoints;
+      case ShiftFilter.shift2:
+        return const [65.0, 72.0, 75.0, 78.0, 76.0];
+      case ShiftFilter.shift3:
+        return const [60.0, 64.0, 68.0, 70.0, 69.0];
+      case ShiftFilter.fullDay:
+        return const [62.0, 69.0, 74.0, 72.0, 71.0];
+    }
+  }
+
   void setShift(ShiftFilter shift) {
     _selectedShift = shift;
     notifyListeners();
@@ -130,12 +195,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 5.96,
       scrapMonth: 5.26,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45091 — Filme Shrink Polietileno',
-      materialDescription: 'PEBD Termoencolhível 65 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Refugo de Acerto / Setup', weightKg: 85.0, percentage: 42.0),
-        ScrapReason(category: 'Refugo Lateral (Refile)', weightKg: 78.0, percentage: 38.5),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
     const MachineIndicator(
       code: 'BCR007',
@@ -153,12 +215,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 6.48,
       scrapMonth: 7.27,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45102 — Laminado Stand-up Pouch',
-      materialDescription: 'BOPP Mate + PE 110 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Ajuste de Tensão e Rugas', weightKg: 340.0, percentage: 55.0),
-        ScrapReason(category: 'Desalinhamento de Eixo', weightKg: 180.0, percentage: 29.0),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
     const MachineIndicator(
       code: 'BCR012',
@@ -176,11 +235,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 5.82,
       scrapMonth: 3.80,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45118 — Bobina Impressa Pão de Forma',
-      materialDescription: 'PEBD Cristal 32 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Refile Lateral', weightKg: 110.0, percentage: 60.0),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
     const MachineIndicator(
       code: 'BCR014',
@@ -198,11 +255,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 10.07,
       scrapMonth: 6.30,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45125 — Filme Barreira Alimentos',
-      materialDescription: 'PA/PE 70 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Refile Lateral', weightKg: 145.0, percentage: 65.0),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
     const MachineIndicator(
       code: 'BCR015',
@@ -220,11 +275,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 3.08,
       scrapMonth: 5.68,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45130 — Filme Higiênico Fraldas',
-      materialDescription: 'PEBD Microperfurado 22 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Refile Lateral Alta Velocidade', weightKg: 210.0, percentage: 70.0),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
     const MachineIndicator(
       code: 'BCR016',
@@ -242,11 +295,9 @@ class IndicatorsState extends ChangeNotifier {
       scrapShift: 7.16,
       scrapMonth: 6.69,
       scrapTarget: 3.0,
-      productionOrder: 'OP-45142 — Embalagem Ração Pet',
-      materialDescription: 'PET Met + PE 95 micras',
-      scrapReasons: [
-        ScrapReason(category: 'Acerto de Alinhamento Fotocélula', weightKg: 130.0, percentage: 52.0),
-      ],
+      productionOrder: '',
+      materialDescription: '',
+      scrapReasons: [],
     ),
   ];
 
@@ -341,7 +392,12 @@ class IndicatorsState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleLiveSync() {
+    manualRefresh();
+  }
+
   Future<void> manualRefresh() async {
+    await _firebaseService.fetchNow();
     _lastUpdate = DateTime.now();
     notifyListeners();
   }
@@ -473,11 +529,23 @@ class IndicatorsState extends ChangeNotifier {
           sMes = _parsePctString(ap!['mesTexto']) ?? sMes;
         }
 
+        List<double>? pts;
+        if (gr?['pontos'] is List) {
+          pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (gr?['rhythmPoints'] is List) {
+          pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (m['rhythmPoints'] is List) {
+          pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+        } else if (m['pontos'] is List) {
+          pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+        }
+
         return existing.copyWith(
           shiftMeters: metrosTurno,
           shiftTarget: metaTurno,
           expectedRitmo: esperadoTurno,
           rhythmPct: rPct,
+          rhythmPoints: pts ?? existing.rhythmPoints,
           todayMeters: metragemHoje,
           monthMeters: metragemMes,
           scrapShift: sShift,

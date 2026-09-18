@@ -97,31 +97,55 @@ class MachineDetailDialog extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'ORDEM DE PRODUÇÃO (OP)',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        if (machine.productionOrder.trim().isNotEmpty) ...[
+                          Text(
+                            'ORDEM DE PRODUÇÃO (OP)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          machine.productionOrder,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          const SizedBox(height: 2),
+                          Text(
+                            machine.productionOrder,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
                           ),
-                        ),
-                        Text(
-                          machine.materialDescription,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          if (machine.materialDescription.trim().isNotEmpty)
+                            Text(
+                              machine.materialDescription,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              ),
+                            ),
+                        ] else ...[
+                          Text(
+                            'STATUS OPERACIONAL',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 2),
+                          Text(
+                            machine.status == 'running' ? 'Em Produção Normal' : 'Setup / Ajuste',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: machine.status == 'running'
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFF59E0B),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

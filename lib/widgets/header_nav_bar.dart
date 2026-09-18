@@ -64,33 +64,31 @@ class HeaderNavBar extends StatelessWidget {
     return Row(
       children: [
         // Zaraplast Stylized Icon/Badge
+        // Zaraplast Official Logo Emblem
         Container(
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0F2B5C), Color(0xFF0284C7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: isDark ? const Color(0xFF0F1E36) : Colors.white,
             borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isDark ? const Color(0xFF1E3A68) : const Color(0xFFCBD5E1),
+              width: 1.2,
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0284C7).withOpacity(0.35),
+                color: const Color(0xFF0284C7).withOpacity(isDark ? 0.30 : 0.12),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
-          ],
-          child: const Center(
-            child: Text(
-              'Z',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 24,
-                fontFamily: 'Outfit',
-              ),
+          ),
+          padding: const EdgeInsets.all(5),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.asset(
+              'assets/zaraplast_logo.png',
+              fit: BoxFit.contain,
             ),
           ),
         ),

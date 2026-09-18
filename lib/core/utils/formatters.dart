@@ -13,11 +13,6 @@ class Formatters {
     decimalDigits: 2,
   );
 
-  static final NumberFormat _percentFormatter = NumberFormat.currency(
-    locale: 'pt_BR',
-    symbol: '%',
-    decimalDigits: 2,
-  );
 
   /// Formata números inteiros com separador de milhar pt-BR (ex: 10582 -> "10.582")
   static String formatInteger(num? value) {

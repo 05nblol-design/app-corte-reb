@@ -26,12 +26,12 @@ class FirebaseHttpService {
 
   void start() {
     _isDisposed = false;
-    _fetchNow();
+    fetchNow();
     _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(refreshInterval, (_) => _fetchNow());
+    _pollingTimer = Timer.periodic(refreshInterval, (_) => fetchNow());
   }
 
-  Future<void> _fetchNow() async {
+  Future<void> fetchNow() async {
     if (_isDisposed || firebaseUrl.trim().isEmpty) return;
 
     try {
@@ -65,7 +65,7 @@ class FirebaseHttpService {
 
   void updateUrl(String newUrl) {
     firebaseUrl = newUrl;
-    _fetchNow();
+    fetchNow();
   }
 
   void _setStatus(FirebaseSyncStatus newStatus) {

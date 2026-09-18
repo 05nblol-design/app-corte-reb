@@ -8,8 +8,10 @@ import '../widgets/transfer_card.dart';
 import '../widgets/scrap_table_card.dart';
 import '../widgets/leadership_card.dart';
 import '../widgets/corte_rebobinamento_card.dart';
+import '../widgets/machines_rhythm_card.dart';
 import '../widgets/mobile/machine_list_item.dart';
 import 'mobile_machine_sheet.dart';
+import '../widgets/reflective_logo_loader.dart';
 
 class MobileHomeScreen extends StatefulWidget {
   final IndicatorsState state;
@@ -27,6 +29,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
     with TickerProviderStateMixin {
   int _currentTabIndex = 0;
   String _activeFilter = 'all'; // 'all', 'running', 'setup', 'critical'
+  String _machineViewMode = 'list'; // 'list' or 'rhythm'
   final TextEditingController _searchController = TextEditingController();
 
   // Speed Dial Animation (+)
@@ -127,7 +130,15 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
 
   void _selectTab(int index) {
     setState(() {
-      _currentTabIndex = index;
+      if (index == 4) {
+        _currentTabIndex = 1;
+        _machineViewMode = 'rhythm';
+      } else {
+        _currentTabIndex = index;
+        if (index == 1) {
+          _machineViewMode = 'list';
+        }
+      }
     });
     _closeSpeedDial();
   }
@@ -300,6 +311,14 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                           label: 'Alertas (${widget.state.alerts.length})',
                           icon: Icons.notifications_active_rounded,
                           color: AppColors.dangerLight,
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildSpeedDialItem(
+                          index: 4,
+                          label: 'Gráficos de Ritmo',
+                          icon: Icons.show_chart_rounded,
+                          color: const Color(0xFF0EA5E9),
                           isDark: isDark,
                         ),
                         const SizedBox(height: 10),
@@ -509,6 +528,113 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
     );
   }
 
+  void _openSyncModal(bool isDark) {
+    _closeAllOverlays();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F1B30) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(
+            color: isDark ? const Color(0xFF1E3258) : const Color(0xFFCBD5E1),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.5 : 0.15),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ReflectiveLogoLoader(
+              isDark: isDark,
+              logoSize: 72,
+              message: widget.state.isLiveActive
+                  ? 'Telemetria Realtime Zaraplast Ativa'
+                  : 'Sincronizando com Firebase RTDB...',
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0B1424) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF1E2D4E) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Última Atualização:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    ),
+                  ),
+                  Text(
+                    Formatters.formatTime(widget.state.lastUpdate),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await widget.state.manualRefresh();
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'Telemetria sincronizada com sucesso!',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        backgroundColor: const Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+                label: const Text(
+                  'SINCRONIZAR AGORA',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.brandPrimary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Cabeçalho com Botão de Turno Expansível no Local
   PreferredSizeWidget _buildCleanAppBar(bool isDark) {
     return AppBar(
@@ -516,43 +642,55 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
       scrolledUnderElevation: 1,
       backgroundColor: isDark ? AppColors.darkNavBg : Colors.white,
       titleSpacing: 16,
-      title: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.brandPrimary,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isDark ? AppColors.brandSecondary : Colors.transparent,
-                width: 1,
+      title: InkWell(
+        onTap: () => _openSyncModal(isDark),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F1E36) : Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF1E3A68) : const Color(0xFFCBD5E1),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0284C7).withOpacity(isDark ? 0.25 : 0.10),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(4),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.asset(
+                    'assets/zaraplast_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-            ),
-            child: const Center(
-              child: Text(
-                'Z',
+              const SizedBox(width: 10),
+              Text(
+                'ZARAPLAST',
                 style: TextStyle(
-                  color: Colors.white,
+                  fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  fontSize: 20,
+                  letterSpacing: 1.0,
+                  color: isDark ? Colors.white : AppColors.brandPrimary,
                   fontFamily: 'Outfit',
                 ),
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 10),
-          Text(
-            'ZARAPLAST',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.0,
-              color: isDark ? Colors.white : AppColors.brandPrimary,
-              fontFamily: 'Outfit',
-            ),
-          ),
-        ],
+        ),
       ),
       actions: [
         InkWell(
@@ -640,21 +778,43 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
         ),
         const SizedBox(height: 12),
 
-        // 2. Corte & Rebobinamento Card (Gauge de Precisão)
+        // 2. Corte & Rebobinamento Card (Gauge de Precisão + Gráfico do Setor)
         CorteRebobinamentoCard(
           currentMeters: widget.state.corteCurrentMeters,
           targetMeters: widget.state.corteTargetMeters,
           completedPercent: widget.state.corteConcludedPercent,
           remainingPercent: widget.state.corteRemainingPercent,
+          sectorRhythmPoints: widget.state.currentSectorRhythmPoints,
+          shiftTitle: widget.state.shiftShortName,
+          timeLabels: widget.state.currentSectorTimeLabels,
           isDark: isDark,
         ),
         const SizedBox(height: 12),
 
         // 3. Resumo de Aparas do Setor
         _buildSectorSummaryCard(isDark),
+        const SizedBox(height: 14),
+
+        // 4. Acompanhamento Liderança (Metros Turno, Hoje em Verde, Mês e Esperado - SEM OEE)
+        LeadershipCard(
+          machines: widget.state.machines,
+          shiftStartTime: widget.state.shiftStartTime,
+          isDark: isDark,
+          onSelectMachine: _openMachineBottomSheet,
+        ),
+        const SizedBox(height: 14),
+
+        // 5. GRÁFICO DO RITMO POR MÁQUINA (CONFORME TURNO)
+        MachinesRhythmCard(
+          machines: widget.state.machines,
+          shiftTitle: widget.state.shiftShortName,
+          timeLabels: widget.state.currentShiftTimeLabels,
+          currentShift: widget.state.selectedShift,
+          isDark: isDark,
+        ),
         const SizedBox(height: 16),
 
-        // 4. Seção Acompanhamento de Máquinas
+        // 6. Seção Acompanhamento Individual de Máquinas
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -668,7 +828,10 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
               ),
             ),
             InkWell(
-              onTap: () => setState(() => _currentTabIndex = 1),
+              onTap: () => setState(() {
+                _currentTabIndex = 1;
+                _machineViewMode = 'list';
+              }),
               child: Text(
                 'Ver Todas (6) →',
                 style: TextStyle(
@@ -747,6 +910,100 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
               ),
               const SizedBox(height: 10),
 
+              // Alternador de Visualização: Lista de Máquinas vs Gráficos de Ritmo
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _machineViewMode = 'list'),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _machineViewMode == 'list'
+                              ? (isDark ? AppColors.brandSecondary : AppColors.brandPrimary)
+                              : (isDark ? AppColors.darkCardBg : Colors.white),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _machineViewMode == 'list'
+                                ? AppColors.brandSecondary
+                                : (isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.view_agenda_rounded,
+                              size: 15,
+                              color: _machineViewMode == 'list'
+                                  ? Colors.white
+                                  : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Lista de Máquinas',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: _machineViewMode == 'list'
+                                    ? Colors.white
+                                    : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _machineViewMode = 'rhythm'),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _machineViewMode == 'rhythm'
+                              ? (isDark ? AppColors.brandSecondary : AppColors.brandPrimary)
+                              : (isDark ? AppColors.darkCardBg : Colors.white),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _machineViewMode == 'rhythm'
+                                ? AppColors.brandSecondary
+                                : (isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.show_chart_rounded,
+                              size: 15,
+                              color: _machineViewMode == 'rhythm'
+                                  ? Colors.white
+                                  : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Gráficos de Ritmo',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: _machineViewMode == 'rhythm'
+                                    ? Colors.white
+                                    : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -766,28 +1023,41 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
         ),
 
         Expanded(
-          child: filtered.isEmpty
-              ? Center(
-                  child: Text(
-                    'Nenhuma máquina encontrada.',
-                    style: TextStyle(
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final m = filtered[index];
-                    return MachineListItem(
-                      machine: m,
+          child: _machineViewMode == 'rhythm'
+              ? ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                  children: [
+                    MachinesRhythmCard(
+                      machines: filtered,
+                      shiftTitle: widget.state.shiftShortName,
+                      timeLabels: widget.state.currentShiftTimeLabels,
+                      currentShift: widget.state.selectedShift,
                       isDark: isDark,
-                      onTap: () => _openMachineBottomSheet(m),
-                    );
-                  },
-                ),
+                    ),
+                  ],
+                )
+              : (filtered.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Nenhuma máquina encontrada.',
+                        style: TextStyle(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final m = filtered[index];
+                        return MachineListItem(
+                          machine: m,
+                          isDark: isDark,
+                          onTap: () => _openMachineBottomSheet(m),
+                        );
+                      },
+                    )),
         ),
       ],
     );
@@ -836,12 +1106,14 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
           sectorDay: widget.state.sectorScrapDay,
           sectorMonth: widget.state.sectorScrapMonth,
           scrapGoal: widget.state.scrapGoal,
+          shiftLabel: widget.state.shiftDisplayName,
           isDark: isDark,
           onSelectMachine: _openMachineBottomSheet,
         ),
         const SizedBox(height: 14),
         LeadershipCard(
           machines: widget.state.machines,
+          shiftStartTime: widget.state.shiftStartTime,
           isDark: isDark,
           onSelectMachine: _openMachineBottomSheet,
         ),
