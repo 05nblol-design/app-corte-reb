@@ -37,27 +37,29 @@ class IndicatorsState extends ChangeNotifier {
   static ShiftFilter getCurrentShift() {
     final hour = DateTime.now().hour;
     if (hour >= 6 && hour < 14) {
-      return ShiftFilter.shift1; // 06:00 - 14:00 (1º Turno)
+      return ShiftFilter.shift1; // 06:00 - 14:00 (Turno A • 1º Turno)
     } else if (hour >= 14 && hour < 22) {
-      return ShiftFilter.shift2; // 14:00 - 22:00 (2º Turno)
+      return ShiftFilter.shift2; // 14:00 - 22:00 (Turno B • 2º Turno)
     } else {
-      return ShiftFilter.shift3; // 22:00 - 06:00 (3º Turno)
+      return ShiftFilter.shift3; // 22:00 - 06:00 (Turno C • 3º Turno)
     }
   }
 
   // Active Shift Filter (Inicia automaticamente no turno atual)
   bool _manualShiftOverride = false;
+  ShiftFilter _lastLiveShift = getCurrentShift();
+  String? _lastTelemetryShiftName;
   ShiftFilter _selectedShift = getCurrentShift();
   ShiftFilter get selectedShift => _selectedShift;
 
   String get shiftDisplayName {
     switch (_selectedShift) {
       case ShiftFilter.shift1:
-        return '1º TURNO (06h–14h)';
+        return 'TURNO A (1º) • 06h–14h';
       case ShiftFilter.shift2:
-        return '2º TURNO (14h–22h)';
+        return 'TURNO B (2º) • 14h–22h';
       case ShiftFilter.shift3:
-        return '3º TURNO (22h–06h)';
+        return 'TURNO C (3º) • 22h–06h';
       case ShiftFilter.fullDay:
         return 'DIA INDUSTRIAL CONSOLIDADO (24H)';
     }
@@ -66,11 +68,11 @@ class IndicatorsState extends ChangeNotifier {
   String get shiftShortName {
     switch (_selectedShift) {
       case ShiftFilter.shift1:
-        return '1º TURNO';
+        return 'TURNO A';
       case ShiftFilter.shift2:
-        return '2º TURNO';
+        return 'TURNO B';
       case ShiftFilter.shift3:
-        return '3º TURNO';
+        return 'TURNO C';
       case ShiftFilter.fullDay:
         return 'DIA 24H';
     }
@@ -118,22 +120,12 @@ class IndicatorsState extends ChangeNotifier {
   List<Offset> _sectorRhythmSeries = const [];
   List<Offset> get currentSectorRhythmSeries => _sectorRhythmSeries;
 
-  List<double> get currentSectorRhythmPoints {
-    switch (_selectedShift) {
-      case ShiftFilter.shift1:
-        return _sectorRhythmPoints;
-      case ShiftFilter.shift2:
-        return const [65.0, 72.0, 75.0, 78.0, 76.0];
-      case ShiftFilter.shift3:
-        return const [60.0, 64.0, 68.0, 70.0, 69.0];
-      case ShiftFilter.fullDay:
-        return const [62.0, 69.0, 74.0, 72.0, 71.0];
-    }
-  }
+  List<double> get currentSectorRhythmPoints => _sectorRhythmPoints;
 
   void setShift(ShiftFilter shift) {
     _selectedShift = shift;
-    _manualShiftOverride = true;
+    // Se o usuário selecionou o turno corrente em tempo real, mantém acompanhamento automático vivo
+    _manualShiftOverride = (shift != getCurrentShift());
     notifyListeners();
   }
 
@@ -177,6 +169,12 @@ class IndicatorsState extends ChangeNotifier {
   double get corteRemainingPercent =>
       _corteRemainingPercentOverride ??
       (100.0 - corteConcludedPercent);
+
+  // Totais do Turno e do Dia (vindos do Firebase)
+  int? _totalShiftMeters;
+  int? _totalDayMeters;
+  int? get totalShiftMeters => _totalShiftMeters;
+  int? get totalDayMeters => _totalDayMeters;
 
   // Transfer Data
   TransferIndicator _transfer = const TransferIndicator(
@@ -603,20 +601,45 @@ class IndicatorsState extends ChangeNotifier {
   void _handleTelemetry(Map<String, dynamic> data) {
     _lastUpdate = DateTime.now();
 
-    // Sincronização Automática de Turno (se não estiver em override manual)
-    if (!_manualShiftOverride) {
-      if (data.containsKey('nomeTurno')) {
-        final nt = data['nomeTurno'].toString().toLowerCase();
-        if (nt.contains('1')) {
-          _selectedShift = ShiftFilter.shift1;
-        } else if (nt.contains('2')) {
-          _selectedShift = ShiftFilter.shift2;
-        } else if (nt.contains('3')) {
-          _selectedShift = ShiftFilter.shift3;
-        }
-      } else {
-        _selectedShift = getCurrentShift();
+    // 0. Sincronização Automática de Turno em Tempo Real
+    final activeShift = getCurrentShift();
+    if (activeShift != _lastLiveShift) {
+      _lastLiveShift = activeShift;
+      _manualShiftOverride = false; // Virada de turno detectada no relógio
+      _selectedShift = activeShift;
+    }
+
+    if (data.containsKey('nomeTurno')) {
+      final nt = data['nomeTurno'].toString().toLowerCase().trim();
+      ShiftFilter? telemetryShift;
+      if (nt.contains('1') || nt.contains('a') || nt.contains('1o') || nt.contains('1º')) {
+        telemetryShift = ShiftFilter.shift1;
+      } else if (nt.contains('2') || nt.contains('b') || nt.contains('2o') || nt.contains('2º')) {
+        telemetryShift = ShiftFilter.shift2;
+      } else if (nt.contains('3') || nt.contains('c') || nt.contains('3o') || nt.contains('3º')) {
+        telemetryShift = ShiftFilter.shift3;
       }
+
+      if (telemetryShift != null) {
+        if (_lastTelemetryShiftName != null && _lastTelemetryShiftName != nt) {
+          // Virada autoritativa de turno no Firebase / Node-RED
+          _manualShiftOverride = false;
+        }
+        _lastTelemetryShiftName = nt;
+        if (!_manualShiftOverride) {
+          _selectedShift = telemetryShift;
+        }
+      }
+    } else if (!_manualShiftOverride) {
+      _selectedShift = activeShift;
+    }
+
+    // 0.1 Totais do Turno e do Dia
+    if (data.containsKey('totalTurno') && data['totalTurno'] != null) {
+      _totalShiftMeters = (data['totalTurno'] as num).toInt();
+    }
+    if (data.containsKey('totalDia') && data['totalDia'] != null) {
+      _totalDayMeters = (data['totalDia'] as num).toInt();
     }
 
     // 1. Transferência (formato customizado ou direto do Node-RED)
@@ -662,7 +685,12 @@ class IndicatorsState extends ChangeNotifier {
     if (data.containsKey('aparasSetor')) {
       final asMap = data['aparasSetor'] as Map<String, dynamic>;
       if (asMap['turnoTexto'] != null) {
-        _sectorScrapShift = _parsePctString(asMap['turnoTexto']) ?? _sectorScrapShift;
+        final rawAsShift = asMap['turnoTexto'].toString().trim();
+        if (rawAsShift == '--') {
+          _sectorScrapShift = null;
+        } else {
+          _sectorScrapShift = _parsePctString(rawAsShift) ?? _sectorScrapShift;
+        }
       }
       if (asMap['mesTexto'] != null) {
         _sectorScrapMonth = _parsePctString(asMap['mesTexto']) ?? _sectorScrapMonth;
@@ -720,13 +748,13 @@ class IndicatorsState extends ChangeNotifier {
 
         final metrosTurno = (m['metrosTurno'] as num?)?.toInt() ??
             (m['shiftMeters'] as num?)?.toInt() ??
-            existing.shiftMeters;
+            0;
         final metaTurno = (m['metaTurno'] as num?)?.toInt() ??
             (m['shiftTarget'] as num?)?.toInt() ??
             existing.shiftTarget;
         final esperadoTurno = (m['esperadoTurno'] as num?)?.toInt() ??
             (m['expectedRitmo'] as num?)?.toInt() ??
-            existing.expectedRitmo;
+            0;
         final metragemHoje = (m['MetragemHoje'] as num?)?.toInt() ??
             (m['todayMeters'] as num?)?.toInt() ??
             existing.todayMeters;
@@ -734,56 +762,63 @@ class IndicatorsState extends ChangeNotifier {
             (m['monthMeters'] as num?)?.toInt() ??
             existing.monthMeters;
 
-        double rPct = existing.rhythmPct;
-        if (gr?['pctAtual'] != null) {
-          rPct = _parsePctString(gr!['pctAtual']) ?? rPct;
-        } else if (m['pctAtual'] != null) {
-          rPct = _parsePctString(m['pctAtual']) ?? rPct;
+        // 1. Curva do Gráfico (se linha estiver vazia ou temSerie for false, zera a curva anterior!)
+        List<Offset> series = const [];
+        final rawLinha = gr?['linha']?.toString();
+        final bool temSerie = gr?['temSerie'] == true || (rawLinha != null && rawLinha.trim().isNotEmpty);
+
+        if (temSerie && rawLinha != null && rawLinha.trim().isNotEmpty) {
+          series = _parseSvgPolylineCoordinates(rawLinha);
+        }
+
+        List<double> pts = const [];
+        if (series.isNotEmpty) {
+          pts = series.map((e) => e.dy).toList();
+        } else if (gr?['pontos'] is List && (gr!['pontos'] as List).isNotEmpty) {
+          pts = (gr['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+        }
+
+        // 2. Percentual do Ritmo (calculado dinamicamente quando pctAtual for '--')
+        double rPct = 0.0;
+        final rawPctAtual = gr?['pctAtual'] ?? m['pctAtual'];
+        final parsedPct = _parsePctString(rawPctAtual);
+        if (parsedPct != null) {
+          rPct = parsedPct;
         } else if (esperadoTurno > 0 && metrosTurno > 0) {
           rPct = (metrosTurno / esperadoTurno) * 100.0;
+        } else if (metrosTurno == 0) {
+          rPct = 0.0;
         }
 
-        double? sShift = existing.scrapShift;
-        if (ap?['turnoTexto'] != null) {
-          sShift = _parsePctString(ap!['turnoTexto']) ?? sShift;
+        // 3. Aparas no Turno (quando turnoTexto for '--', zera e limpa o turno anterior)
+        double? sShift;
+        bool clearScrap = false;
+        final rawTurnoTexto = ap?['turnoTexto']?.toString().trim();
+        if (rawTurnoTexto != null && (rawTurnoTexto == '--' || rawTurnoTexto.isEmpty)) {
+          sShift = null;
+          clearScrap = true;
+        } else if (rawTurnoTexto != null) {
+          sShift = _parsePctString(rawTurnoTexto);
+        } else {
+          sShift = existing.scrapShift;
         }
 
+        // 4. Aparas no Mês
         double sMes = existing.scrapMonth;
         if (ap?['mesTexto'] != null) {
           sMes = _parsePctString(ap!['mesTexto']) ?? sMes;
         }
 
-        List<Offset>? series;
-        if (gr?['linha'] != null) {
-          final parsed = _parseSvgPolylineCoordinates(gr!['linha']?.toString());
-          if (parsed.isNotEmpty) {
-            series = parsed;
-          }
-        }
-
-        List<double>? pts;
-        if (series != null && series.isNotEmpty) {
-          pts = series.map((e) => e.dy).toList();
-        } else if (gr?['pontos'] is List) {
-          pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (gr?['rhythmPoints'] is List) {
-          pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (m['rhythmPoints'] is List) {
-          pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (m['pontos'] is List) {
-          pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
-        }
-
-        // Subtítulo da análise de turno (ex: "desde 06:02")
+        // 5. Subtítulo da análise de turno (ex: "desde 14:02")
         final shiftAnalysis = m['pctTurno']?.toString() ??
             m['shiftAnalysisText']?.toString() ??
             data['pctSetorTexto']?.toString() ??
-            existing.shiftAnalysisText;
+            'desde $shiftStartTime';
 
         final rClass = gr?['classe']?.toString() ??
             m['statusClasse']?.toString() ??
             m['classe']?.toString() ??
-            (rPct >= 100 ? 'ritmo-ok' : (rPct >= 80 ? 'ritmo-alerta' : 'ritmo-ruim'));
+            (rPct >= 100 ? 'ritmo-ok' : (rPct >= 80 ? 'ritmo-alerta' : (rPct > 0 ? 'ritmo-ruim' : 'ritmo-neutro')));
 
         return existing.copyWith(
           status: metrosTurno > 0 ? 'running' : 'stopped',
@@ -793,11 +828,12 @@ class IndicatorsState extends ChangeNotifier {
           shiftTarget: metaTurno,
           expectedRitmo: esperadoTurno,
           rhythmPct: rPct,
-          rhythmPoints: pts ?? existing.rhythmPoints,
-          rhythmSeries: series ?? existing.rhythmSeries,
+          rhythmPoints: pts,
+          rhythmSeries: series,
           todayMeters: metragemHoje,
           monthMeters: metragemMes,
           scrapShift: sShift,
+          clearScrapShift: clearScrap,
           scrapMonth: sMes,
           shiftAnalysisText: shiftAnalysis,
         );
@@ -825,6 +861,9 @@ class IndicatorsState extends ChangeNotifier {
         }
         _sectorRhythmSeries = sectorSeries;
         _sectorRhythmPoints = sectorSeries.map((p) => p.dy).toList();
+      } else {
+        _sectorRhythmSeries = const [];
+        _sectorRhythmPoints = const [];
       }
     } else if (data.containsKey('maquinas') && data['maquinas'] is List) {
       final list = data['maquinas'] as List;
@@ -835,6 +874,7 @@ class IndicatorsState extends ChangeNotifier {
     }
 
     _generateRealAlerts();
+
     notifyListeners();
   }
 

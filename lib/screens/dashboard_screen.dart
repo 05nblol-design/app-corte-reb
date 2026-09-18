@@ -107,6 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 sectorDay: widget.state.sectorScrapDay,
                 sectorMonth: widget.state.sectorScrapMonth,
                 scrapGoal: widget.state.scrapGoal,
+                shiftLabel: widget.state.shiftShortName,
                 isDark: isDark,
                 onSelectMachine: _openMachineDetail,
               ),

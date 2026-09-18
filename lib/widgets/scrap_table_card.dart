@@ -133,7 +133,7 @@ class ScrapTableCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    shiftLabel ?? '1º TURNO (AGORA)',
+                    shiftLabel ?? 'TURNO ATUAL',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11,

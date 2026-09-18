@@ -223,6 +223,20 @@ class _RhythmChartPainter extends CustomPainter {
       canvas.drawCircle(lastPt, 4.0, beaconHaloPaint);
       canvas.drawCircle(lastPt, 2.5, beaconInnerPaint);
       canvas.drawCircle(lastPt, 1.2, beaconCorePaint);
+    } else {
+      // Turno acabou de iniciar e a série temporal foi zerada
+      final waitingStyle = TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+      );
+      _drawText(
+        canvas,
+        'Aguardando leituras do turno...',
+        Offset(leftPadding + (chartWidth / 2), topPadding + (chartHeight / 2) - 6),
+        waitingStyle,
+        align: TextAlign.center,
+      );
     }
 
     // 3. Draw X-Axis Time Labels

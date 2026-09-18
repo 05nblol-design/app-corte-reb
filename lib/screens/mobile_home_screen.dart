@@ -193,11 +193,11 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
   String _getShiftLabel(ShiftFilter shift) {
     switch (shift) {
       case ShiftFilter.shift1:
-        return '1º Turno';
+        return 'Turno A';
       case ShiftFilter.shift2:
-        return '2º Turno';
+        return 'Turno B';
       case ShiftFilter.shift3:
-        return '3º Turno';
+        return 'Turno C';
       case ShiftFilter.fullDay:
         return 'Dia 24h';
     }
@@ -263,20 +263,20 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildShiftDropdownItem(
-                        title: '1º Turno',
-                        subtitle: '06h às 14h (Agora)',
+                        title: 'Turno A (1º)',
+                        subtitle: '06h às 14h${IndicatorsState.getCurrentShift() == ShiftFilter.shift1 ? ' • Agora' : ''}',
                         shift: ShiftFilter.shift1,
                         isDark: isDark,
                       ),
                       _buildShiftDropdownItem(
-                        title: '2º Turno',
-                        subtitle: '14h às 22h',
+                        title: 'Turno B (2º)',
+                        subtitle: '14h às 22h${IndicatorsState.getCurrentShift() == ShiftFilter.shift2 ? ' • Agora' : ''}',
                         shift: ShiftFilter.shift2,
                         isDark: isDark,
                       ),
                       _buildShiftDropdownItem(
-                        title: '3º Turno',
-                        subtitle: '22h às 06h',
+                        title: 'Turno C (3º)',
+                        subtitle: '22h às 06h${IndicatorsState.getCurrentShift() == ShiftFilter.shift3 ? ' • Agora' : ''}',
                         shift: ShiftFilter.shift3,
                         isDark: isDark,
                       ),
@@ -1248,7 +1248,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                   Row(
                     children: [
                       Text(
-                        '1º Turno: ',
+                        '${widget.state.shiftShortName}: ',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -1256,21 +1256,28 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                         ),
                       ),
                       Text(
-                        '0,00%',
+                        widget.state.sectorScrapShift != null
+                            ? '${Formatters.formatDecimal(widget.state.sectorScrapShift!)}%'
+                            : '--',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
-                          color: okValColor,
+                          color: widget.state.sectorScrapShift != null && widget.state.sectorScrapShift! <= widget.state.scrapGoal
+                              ? okValColor
+                              : (widget.state.sectorScrapShift != null ? AppColors.danger : (isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted)),
                         ),
                       ),
-                      Text(
-                        ' (Dentro)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.darkTextMuted : const Color(0xFF64748B),
+                      if (widget.state.sectorScrapShift != null)
+                        Text(
+                          widget.state.sectorScrapShift! <= widget.state.scrapGoal ? ' (Dentro)' : ' (Acima)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: widget.state.sectorScrapShift! <= widget.state.scrapGoal
+                                ? (isDark ? AppColors.darkTextMuted : const Color(0xFF64748B))
+                                : AppColors.danger,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 2),
@@ -1285,21 +1292,28 @@ class _MobileHomeScreenState extends State<MobileHomeScreen>
                         ),
                       ),
                       Text(
-                        '0,00%',
+                        widget.state.sectorScrapDay != null
+                            ? '${Formatters.formatDecimal(widget.state.sectorScrapDay!)}%'
+                            : '--',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
-                          color: okValColor,
+                          color: widget.state.sectorScrapDay != null && widget.state.sectorScrapDay! <= widget.state.scrapGoal
+                              ? okValColor
+                              : (widget.state.sectorScrapDay != null ? AppColors.danger : (isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted)),
                         ),
                       ),
-                      Text(
-                        ' (Dentro)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.darkTextMuted : const Color(0xFF64748B),
+                      if (widget.state.sectorScrapDay != null)
+                        Text(
+                          widget.state.sectorScrapDay! <= widget.state.scrapGoal ? ' (Dentro)' : ' (Acima)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: widget.state.sectorScrapDay! <= widget.state.scrapGoal
+                                ? (isDark ? AppColors.darkTextMuted : const Color(0xFF64748B))
+                                : AppColors.danger,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ],

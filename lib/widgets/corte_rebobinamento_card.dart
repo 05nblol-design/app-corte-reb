@@ -300,7 +300,7 @@ class CorteRebobinamentoCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '% DO RITMO DO SETOR — ${shiftTitle ?? "1º TURNO"}',
+              '% DO RITMO DO SETOR — ${shiftTitle ?? "TURNO ATUAL"}',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,

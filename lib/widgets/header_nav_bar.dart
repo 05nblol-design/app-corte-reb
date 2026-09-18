@@ -158,10 +158,28 @@ class HeaderNavBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _shiftPill('1º Turno (Agora)', ShiftFilter.shift1, isDark),
-          _shiftPill('2º Turno', ShiftFilter.shift2, isDark),
-          _shiftPill('3º Turno', ShiftFilter.shift3, isDark),
-          _shiftPill('Dia Todo', ShiftFilter.fullDay, isDark),
+          _shiftPill(
+            IndicatorsState.getCurrentShift() == ShiftFilter.shift1
+                ? 'Turno A • Agora'
+                : 'Turno A',
+            ShiftFilter.shift1,
+            isDark,
+          ),
+          _shiftPill(
+            IndicatorsState.getCurrentShift() == ShiftFilter.shift2
+                ? 'Turno B • Agora'
+                : 'Turno B',
+            ShiftFilter.shift2,
+            isDark,
+          ),
+          _shiftPill(
+            IndicatorsState.getCurrentShift() == ShiftFilter.shift3
+                ? 'Turno C • Agora'
+                : 'Turno C',
+            ShiftFilter.shift3,
+            isDark,
+          ),
+          _shiftPill('Dia 24h', ShiftFilter.fullDay, isDark),
         ],
       ),
     );

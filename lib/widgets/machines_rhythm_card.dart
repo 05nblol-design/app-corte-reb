@@ -83,7 +83,7 @@ class MachinesRhythmCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '% DO RITMO POR MÁQUINA — ${shiftTitle ?? "1º TURNO"}',
+                          '% DO RITMO POR MÁQUINA — ${shiftTitle ?? "TURNO ATUAL"}',
                           style: TextStyle(
                             fontSize: isMobile ? 12 : 13,
                             fontWeight: FontWeight.w900,
