@@ -141,15 +141,19 @@ class IndicatorsState extends ChangeNotifier {
   // Overall Corte & Rebobinamento
   int _corteCurrentMeters = 14631933;
   int _corteTargetMeters = 27500000;
+  double? _corteConcludedPercentOverride;
+  double? _corteRemainingPercentOverride;
 
   int get corteCurrentMeters => _corteCurrentMeters;
   int get corteTargetMeters => _corteTargetMeters;
 
   double get corteConcludedPercent =>
-      _corteTargetMeters > 0 ? (_corteCurrentMeters / _corteTargetMeters) * 100 : 0.0; // 53.2%
+      _corteConcludedPercentOverride ??
+      (_corteTargetMeters > 0 ? (_corteCurrentMeters / _corteTargetMeters) * 100 : 0.0);
 
   double get corteRemainingPercent =>
-      100.0 - corteConcludedPercent; // 46.8%
+      _corteRemainingPercentOverride ??
+      (100.0 - corteConcludedPercent);
 
   // Transfer Data
   TransferIndicator _transfer = const TransferIndicator(
@@ -409,6 +413,28 @@ class IndicatorsState extends ChangeNotifier {
     return double.tryParse(str);
   }
 
+  static List<double> _parseSvgPolylinePoints(String? linha) {
+    if (linha == null || linha.trim().isEmpty) return const [];
+    try {
+      final pairs = linha.trim().split(RegExp(r'\s+'));
+      final points = <double>[];
+      for (final pair in pairs) {
+        final coords = pair.split(',');
+        if (coords.length >= 2) {
+          final y = double.tryParse(coords[1].trim());
+          if (y != null) {
+            // No web/Node-RED: y = 74 - (pct / 150) * 65  =>  pct = ((74 - y) / 65) * 150
+            final pct = ((74.0 - y) / 65.0) * 150.0;
+            points.add(double.parse(pct.clamp(0.0, 300.0).toStringAsFixed(1)));
+          }
+        }
+      }
+      return points;
+    } catch (_) {
+      return const [];
+    }
+  }
+
   void _handleTelemetry(Map<String, dynamic> data) {
     _lastUpdate = DateTime.now();
 
@@ -430,7 +456,7 @@ class IndicatorsState extends ChangeNotifier {
       );
     }
 
-    // 2. Corte Geral / Metas
+    // 2. Corte Geral / Metas & Percentuais Visuais do Dashboard Real
     if (data.containsKey('totalGeral')) {
       _corteCurrentMeters = (data['totalGeral'] as num).toInt();
     }
@@ -441,6 +467,12 @@ class IndicatorsState extends ChangeNotifier {
       final c = data['corteGeral'] as Map<String, dynamic>;
       if (c['atual'] != null) _corteCurrentMeters = (c['atual'] as num).toInt();
       if (c['meta'] != null) _corteTargetMeters = (c['meta'] as num).toInt();
+    }
+    if (data.containsKey('concluidoPctVisual')) {
+      _corteConcludedPercentOverride = _parsePctString(data['concluidoPctVisual']);
+    }
+    if (data.containsKey('restantePctVisual')) {
+      _corteRemainingPercentOverride = _parsePctString(data['restantePctVisual']);
     }
 
     // 3. Setor Aparas & Ritmo
@@ -463,8 +495,14 @@ class IndicatorsState extends ChangeNotifier {
             .toList();
       }
     }
+    if (data.containsKey('graficoSetorLinha')) {
+      final sectorPoints = _parseSvgPolylinePoints(data['graficoSetorLinha']?.toString());
+      if (sectorPoints.isNotEmpty) {
+        _sectorRhythmPoints = sectorPoints;
+      }
+    }
 
-    // 4. Máquinas (compatível com Node-RED listaMaquinas + listaAparas + graficosMaquinas)
+    // 4. Máquinas (compatível com Node-RED listaMaquinas + listaAparas + graficosRitmo)
     if (data.containsKey('listaMaquinas') && data['listaMaquinas'] is List) {
       final rawList = data['listaMaquinas'] as List;
       final aparasMap = <String, Map<String, dynamic>>{};
@@ -477,8 +515,9 @@ class IndicatorsState extends ChangeNotifier {
       }
 
       final graficosMap = <String, Map<String, dynamic>>{};
-      if (data['graficosMaquinas'] is List) {
-        for (var item in data['graficosMaquinas'] as List) {
+      final rawGraficos = data['graficosRitmo'] ?? data['graficosMaquinas'];
+      if (rawGraficos is List) {
+        for (var item in rawGraficos) {
           if (item is Map<String, dynamic> && item['maquina'] != null) {
             graficosMap[item['maquina'].toString()] = item;
           }
@@ -513,10 +552,12 @@ class IndicatorsState extends ChangeNotifier {
             existing.monthMeters;
 
         double rPct = existing.rhythmPct;
-        if (m['pctTurno'] != null) {
-          rPct = _parsePctString(m['pctTurno']) ?? rPct;
-        } else if (gr?['pctAtual'] != null) {
+        if (gr?['pctAtual'] != null) {
           rPct = _parsePctString(gr!['pctAtual']) ?? rPct;
+        } else if (m['pctAtual'] != null) {
+          rPct = _parsePctString(m['pctAtual']) ?? rPct;
+        } else if (esperadoTurno > 0 && metrosTurno > 0) {
+          rPct = (metrosTurno / esperadoTurno) * 100.0;
         }
 
         double? sShift = existing.scrapShift;
@@ -530,15 +571,29 @@ class IndicatorsState extends ChangeNotifier {
         }
 
         List<double>? pts;
-        if (gr?['pontos'] is List) {
-          pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (gr?['rhythmPoints'] is List) {
-          pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (m['rhythmPoints'] is List) {
-          pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
-        } else if (m['pontos'] is List) {
-          pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+        if (gr?['linha'] != null) {
+          final parsed = _parseSvgPolylinePoints(gr!['linha']?.toString());
+          if (parsed.isNotEmpty) {
+            pts = parsed;
+          }
         }
+        if (pts == null) {
+          if (gr?['pontos'] is List) {
+            pts = (gr!['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+          } else if (gr?['rhythmPoints'] is List) {
+            pts = (gr!['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+          } else if (m['rhythmPoints'] is List) {
+            pts = (m['rhythmPoints'] as List).map((e) => (e as num).toDouble()).toList();
+          } else if (m['pontos'] is List) {
+            pts = (m['pontos'] as List).map((e) => (e as num).toDouble()).toList();
+          }
+        }
+
+        // Subtítulo da análise de turno (ex: "desde 06:02")
+        final shiftAnalysis = m['pctTurno']?.toString() ??
+            m['shiftAnalysisText']?.toString() ??
+            data['pctSetorTexto']?.toString() ??
+            existing.shiftAnalysisText;
 
         return existing.copyWith(
           shiftMeters: metrosTurno,
@@ -550,6 +605,7 @@ class IndicatorsState extends ChangeNotifier {
           monthMeters: metragemMes,
           scrapShift: sShift,
           scrapMonth: sMes,
+          shiftAnalysisText: shiftAnalysis,
         );
       }).toList();
     } else if (data.containsKey('maquinas') && data['maquinas'] is List) {

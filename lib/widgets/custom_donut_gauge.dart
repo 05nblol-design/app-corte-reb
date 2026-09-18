@@ -7,7 +7,7 @@ class CustomDonutGauge extends StatelessWidget {
   final double remainingPercent; // e.g. 95.7
   final double size;
   final double strokeWidth;
-  final String centerTitle;
+  final String? centerTitle;
   final String centerSubtitle;
   final bool isDark;
   final Color? concludedColor;
@@ -19,7 +19,7 @@ class CustomDonutGauge extends StatelessWidget {
     required this.remainingPercent,
     this.size = 210,
     this.strokeWidth = 20,
-    this.centerTitle = '4,3%',
+    this.centerTitle,
     this.centerSubtitle = 'CONCLUÍDO',
     this.isDark = true,
     this.concludedColor,
@@ -69,7 +69,7 @@ class CustomDonutGauge extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                centerTitle,
+                centerTitle ?? '${completedPercent.toStringAsFixed(1).replaceAll('.', ',')}%',
                 style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.w900,

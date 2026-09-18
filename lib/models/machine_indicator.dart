@@ -44,6 +44,7 @@ class MachineIndicator {
   final String productionOrder; // Número da OP
   final String materialDescription;
   final List<ScrapReason> scrapReasons;
+  final String shiftAnalysisText; // ex: "desde 06:02"
 
   const MachineIndicator({
     required this.code,
@@ -65,6 +66,7 @@ class MachineIndicator {
     required this.productionOrder,
     required this.materialDescription,
     this.scrapReasons = const [],
+    this.shiftAnalysisText = 'desde 06:02',
   });
 
   bool get isScrapAboveTarget => scrapMonth > scrapTarget;
@@ -100,6 +102,7 @@ class MachineIndicator {
               ?.map((e) => ScrapReason.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      shiftAnalysisText: json['pctTurno']?.toString() ?? json['shiftAnalysisText']?.toString() ?? 'desde 06:02',
     );
   }
 
@@ -130,6 +133,7 @@ class MachineIndicator {
     'productionOrder': productionOrder,
     'materialDescription': materialDescription,
     'scrapReasons': scrapReasons.map((r) => r.toJson()).toList(),
+    'shiftAnalysisText': shiftAnalysisText,
   };
 
   MachineIndicator copyWith({
@@ -152,6 +156,7 @@ class MachineIndicator {
     String? productionOrder,
     String? materialDescription,
     List<ScrapReason>? scrapReasons,
+    String? shiftAnalysisText,
   }) {
     return MachineIndicator(
       code: code ?? this.code,
@@ -173,6 +178,7 @@ class MachineIndicator {
       productionOrder: productionOrder ?? this.productionOrder,
       materialDescription: materialDescription ?? this.materialDescription,
       scrapReasons: scrapReasons ?? this.scrapReasons,
+      shiftAnalysisText: shiftAnalysisText ?? this.shiftAnalysisText,
     );
   }
 }

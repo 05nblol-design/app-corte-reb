@@ -452,6 +452,41 @@ class LeadershipCard extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 10),
+
+              // Análise Individual da Máquina (desde HH:MM do ritmo · esperado X · meta Y)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.speed_outlined,
+                      size: 13,
+                      color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '${m.shiftAnalysisText.isNotEmpty ? m.shiftAnalysisText : "desde ${shiftStartTime ?? '06:02'}"} do ritmo · esperado ${Formatters.formatInteger(m.expectedRitmo)} · meta ${Formatters.formatInteger(m.shiftTarget)}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -653,7 +688,7 @@ class LeadershipCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'desde ${shiftStartTime ?? "06:00"} do ritmo · esperado ${Formatters.formatInteger(m.expectedRitmo)} · meta ${Formatters.formatInteger(m.shiftTarget)}',
+                    '${m.shiftAnalysisText.isNotEmpty ? m.shiftAnalysisText : "desde ${shiftStartTime ?? '06:02'}"} do ritmo · esperado ${Formatters.formatInteger(m.expectedRitmo)} · meta ${Formatters.formatInteger(m.shiftTarget)}',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
